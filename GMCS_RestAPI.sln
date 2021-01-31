@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMCS_RestAPI", "GMCS_RestAPI\GMCS_RestAPI.csproj", "{B563F39F-549A-44C4-9A73-41ACA3871493}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B563F39F-549A-44C4-9A73-41ACA3871493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B563F39F-549A-44C4-9A73-41ACA3871493}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B563F39F-549A-44C4-9A73-41ACA3871493}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B563F39F-549A-44C4-9A73-41ACA3871493}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {325BDDB5-0E63-46A4-9177-5F080DD29FD7}
+	EndGlobalSection
+EndGlobal
