@@ -1,10 +1,10 @@
+using GMCS_RestAPI.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using GMCS_RestAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestAPI
@@ -21,7 +21,8 @@ namespace GMCS_RestAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			string connection = Configuration.GetConnectionString("DefaultConnection");
+			var connection = Configuration.GetConnectionString("DefaultConnection");
+
 			services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
 
 			services.AddControllers();

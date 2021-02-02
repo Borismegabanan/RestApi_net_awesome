@@ -2,12 +2,11 @@
 
 namespace GMCS_RestAPI.Models
 {
-	public class BookStatus
+	public class BookState
 	{
-		[Key]
+		[Key] 
 		public int Id { get; set; }
-		
-		//Rename to Title or Caption?
 		public string Name { get; set; }
 	}
+
 }

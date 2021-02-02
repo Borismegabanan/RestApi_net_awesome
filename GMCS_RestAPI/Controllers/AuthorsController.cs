@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Contexts;
+using GMCS_RestAPI.Database;
 using GMCS_RestAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +10,7 @@ namespace GMCS_RestAPI.Controllers
 {
 
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("[controller]")]
 	public class AuthorsController : Controller
 	{
 		private readonly ApplicationContext _context;
@@ -19,15 +18,29 @@ namespace GMCS_RestAPI.Controllers
 		public AuthorsController(ApplicationContext context)
 		{
 			_context = context;
-			
 		}
 
+		/// <summary>
+		/// Получение списка авторов.
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Author>>> Get()
+		{
+			return await _context.Authors.ToListAsync();
+		}
 
+		/// <summary>
+		/// Получение автора по его имени.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		[HttpGet("{name}")]
 		public async Task<ActionResult<IEnumerable<Author>>> Get(string name)
 		{
-			var authors = await _context.Authors.Where(x => x.FullName.Contains(name)).ToListAsync();
-			if (authors == null)
+			var authors = await _context.Authors.Where(x => x.FullName.ToLower().Contains(name.ToLower())).ToListAsync();
+
+			if (!authors.Any())
 			{
 				return NotFound();
 			}
@@ -35,6 +48,11 @@ namespace GMCS_RestAPI.Controllers
 			return new ObjectResult(authors);
 		}
 
+		/// <summary>
+		/// Создание автора.
+		/// </summary>
+		/// <param name="author"></param>
+		/// <returns></returns>
 		[HttpPost]
 		public async Task<ActionResult<Author>> Post(Author author)
 		{
@@ -58,6 +76,11 @@ namespace GMCS_RestAPI.Controllers
 			return Ok(author);
 		}
 
+		/// <summary>
+		/// Удаление автора и всех его книг.
+		/// </summary>
+		/// <param name="authorId"></param>
+		/// <returns></returns>
 		[HttpDelete]
 		public async Task<ActionResult<Author>> Delete(int authorId)
 		{
@@ -69,13 +92,12 @@ namespace GMCS_RestAPI.Controllers
 			
 			_context.Authors.Remove(author);
 
-			var booksToRemove = _context.Books.Where(x => x.Author.Id == authorId).ToList();
+			var booksToRemove = _context.Books.Where(x => x.AuthorId == authorId).ToList();
 
 			_context.Books.RemoveRange(booksToRemove);
 
 			await _context.SaveChangesAsync();
 			return Ok(author);
 		}
-
 	}
 }
