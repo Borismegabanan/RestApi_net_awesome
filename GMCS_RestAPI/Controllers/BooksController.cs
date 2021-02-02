@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using GMCS_RestAPI.Classes;
-using GMCS_RestAPI.Contexts;
+using GMCS_RestAPI.Database;
 using GMCS_RestAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,40 +15,50 @@ namespace GMCS_RestAPI.Controllers
 	[Route("[controller]")]
 	public class BooksController : ControllerBase
 	{
-		private readonly ApplicationContext _context;
+		private ApplicationContext _context;
 
 		public BooksController(ApplicationContext context)
 		{
 			_context = context;
+
+			СStatic.InitDataBase(_context);
 		}
 
+		/// <summary>
+		/// Получение списка всех книг с полным именем автора.
+		/// </summary>
+		/// <returns></returns>
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Book>>> Get()
+		public async Task<ActionResult<IEnumerable<CBook>>> Get()
 		{
-			//var books= await _context.Books.Join(
-			//	_context.Authors,
-			//	x => x.AuthorId,
-			//	z => z.Id,
-			//	(book, author) => new CBook()
-			//	{
-			//		Id = book.Id,
-			//		Name = book.Name,
-			//		Author = author.FullName,
-			//		InitDate = book.InitDate,
-			//		PublishDate = book.PublishDate,
-			//		WhoChanged = book.WhoChanged
-			//	}).ToListAsync();
-
-			var books = await _context.Books.Include(x => x.Author).ToListAsync();
-
-			return books;
+			return await _context.Books.Join(_context.BookStates, x=>x.BookStateId, z=>z.Id,(book,state) => new {book,state})
+				.Join(
+				_context.Authors,
+				x => x.book.AuthorId,
+				z => z.Id,
+				(record, author) => new CBook
+				{
+					Id = record.book.Id,
+					Name = record.book.Name,
+					Author = author.FullName,
+					BookState = record.state.Name,
+					InitDate = record.book.InitDate,
+					PublishDate = record.book.PublishDate,
+					WhoChanged = record.book.WhoChanged
+				}).ToListAsync();
 		}
 
+		/// <summary>
+		/// Получение книг по названию.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		[HttpGet("{name}")]
 		public async Task<ActionResult<IEnumerable<Book>>> Get(string name)
 		{
-			var books = await _context.Books.Where(x => x.Name.Contains(name)).ToListAsync();
-			if (books == null)
+			var books = await _context.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToListAsync();
+			
+			if (!books.Any())
 			{
 				return NotFound();
 			}
@@ -54,16 +66,23 @@ namespace GMCS_RestAPI.Controllers
 			return new ObjectResult(books);
 		}
 
+
+		/// <summary>
+		/// Получение книг по названию или Имени, или Фамилии или Отчеству автора
+		/// </summary>
+		/// <param name="metadata"></param>
+		/// <returns></returns>
 		[HttpGet]
 		[Route("Search/{metadata}")]
 		public async Task<ActionResult<IEnumerable<Book>>> GetFromMetadata(string metadata)
 		{
+			metadata = metadata.ToLower();
 			var books = await _context.Books
-				.Join(_context.Authors, x => x.Author.Id, z => z.Id,
+				.Join(_context.Authors, x => x.AuthorId, z => z.Id,
 					(book, author) => new {book, author}).Where(x =>
-					x.book.Name == metadata || x.author.Name == metadata ||
-					x.author.Surname == metadata || x.author.MiddleName == metadata).Select(x =>
-					new CBook()
+					x.book.Name.ToLower() == metadata || x.author.Name.ToLower() == metadata ||
+					x.author.Surname.ToLower() == metadata || x.author.MiddleName.ToLower() == metadata).Select(x =>
+					new CBook
 					{
 						Id = x.book.Id,
 						Name = x.book.Name,
@@ -73,7 +92,7 @@ namespace GMCS_RestAPI.Controllers
 						WhoChanged = x.book.WhoChanged
 					}).ToListAsync();
 
-			if (books == null)
+			if (!books.Any())
 			{
 				return NotFound();
 			}
@@ -81,6 +100,70 @@ namespace GMCS_RestAPI.Controllers
 			return new ObjectResult(books);
 		}
 
+		/// <summary>
+		/// Изменение статуса книги на "В наличии"
+		/// </summary>
+		/// <param name="bookId"></param>
+		/// <returns></returns>
+		[HttpPut]
+		[Route("ChangeStateToInStock")]
+		public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
+		{
+			var book = _context.Books.First(x => x.Id == bookId);
+
+			if (book == null)
+			{
+				return BadRequest();
+			}
+
+			book.BookStateId = 2;
+
+			book.WhoChanged = Environment.UserName;
+
+			_context.Update(book);
+
+			await _context.SaveChangesAsync();
+
+			return Ok(book);
+		}
+
+		/// <summary>
+		/// Изменение статуса книги на "В наличии"
+		/// </summary>
+		/// <param name="bookId"></param>
+		/// <returns></returns>
+		[HttpPut]
+		[Route("ChangeStateToSold")]
+		public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
+		{
+			var book = _context.Books.First(x => x.Id == bookId);
+
+			if (book == null)
+			{
+				return BadRequest();
+			}
+
+			if (book.Id != 2)
+			{
+				return BadRequest("Данной книги нет в налчии");
+			}
+
+			book.BookStateId = 1;
+
+			book.WhoChanged = Environment.UserName;
+
+			_context.Update(book);
+
+			await _context.SaveChangesAsync();
+
+			return Ok(book);
+		}
+
+		/// <summary>
+		/// Создание книги
+		/// </summary>
+		/// <param name="book"></param>
+		/// <returns></returns>
 		[HttpPost]
 		public async Task<ActionResult<Book>> Post(Book book)
 		{
@@ -99,6 +182,11 @@ namespace GMCS_RestAPI.Controllers
 			return Ok(book);
 		}
 
+		/// <summary>
+		/// Удаление книги
+		/// </summary>
+		/// <param name="bookId"></param>
+		/// <returns></returns>
 		[HttpDelete]
 		public async Task<ActionResult<Book>> Delete(int bookId)
 		{
@@ -108,7 +196,7 @@ namespace GMCS_RestAPI.Controllers
 				return NotFound("не найден автор");
 			}
 
-			var isAuthorFound = _context.Authors.Any(x => x.Id == book.Author.Id);
+			var isAuthorFound = _context.Authors.Any(x => x.Id == book.AuthorId);
 
 			if (!isAuthorFound)
 			{
