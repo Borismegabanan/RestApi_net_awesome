@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using GMCS_RestAPI.Classes;
@@ -109,7 +108,7 @@ namespace GMCS_RestAPI.Controllers
 		[Route("ChangeStateToInStock")]
 		public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
 		{
-			var book = _context.Books.First(x => x.Id == bookId);
+			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
 
 			if (book == null)
 			{
@@ -136,14 +135,14 @@ namespace GMCS_RestAPI.Controllers
 		[Route("ChangeStateToSold")]
 		public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
 		{
-			var book = _context.Books.First(x => x.Id == bookId);
+			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
 
 			if (book == null)
 			{
 				return BadRequest();
 			}
 
-			if (book.Id != 2)
+			if (book.BookStateId != 2)
 			{
 				return BadRequest("Данной книги нет в налчии");
 			}
@@ -190,7 +189,7 @@ namespace GMCS_RestAPI.Controllers
 		[HttpDelete]
 		public async Task<ActionResult<Book>> Delete(int bookId)
 		{
-			var book = _context.Books.FirstOrDefault(x => x.Id == bookId);
+			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
 			if (book == null)
 			{
 				return NotFound("не найден автор");
