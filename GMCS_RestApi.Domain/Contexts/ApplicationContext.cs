@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Models;
+using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GMCS_RestAPI.Database
+namespace GMCS_RestApi.Domain.Contexts
 {
 	public sealed class ApplicationContext : DbContext
 	{
@@ -19,11 +19,13 @@ namespace GMCS_RestAPI.Database
 			: base(options)
 		{
 			Database.EnsureCreated();
+
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.LogTo(_logStream.WriteLine);
+		
 		}
 		public override void Dispose()
 		{

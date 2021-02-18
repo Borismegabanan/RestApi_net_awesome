@@ -1,4 +1,4 @@
-using GMCS_RestAPI.Database;
+using GMCS_RestApi.Domain.Contexts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

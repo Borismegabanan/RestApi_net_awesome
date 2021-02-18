@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Database;
-using GMCS_RestAPI.Models;
+using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestAPI.Controllers
@@ -71,7 +71,7 @@ namespace GMCS_RestAPI.Controllers
 				author.FullName = $"{author.Surname} {author.Name} {author.MiddleName}";
 			}
 
-			_context.Authors.Add(author);
+			await _context.Authors.AddAsync(author);
 			await _context.SaveChangesAsync();
 			return Ok(author);
 		}

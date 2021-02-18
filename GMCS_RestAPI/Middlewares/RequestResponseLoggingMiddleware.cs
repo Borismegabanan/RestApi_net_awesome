@@ -10,15 +10,15 @@ namespace GMCS_RestAPI.Middlewares
 {
     public class RequestResponseLoggingMiddleware
     {
-        private readonly RequestDelegate next;
-        private readonly ILogger logger;
+        private readonly RequestDelegate _next;
+        private readonly ILogger _logger;
 
         private Stopwatch _timer;
 
         public RequestResponseLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
         {
-            this.next = next;
-            logger = loggerFactory.CreateLogger<RequestResponseLoggingMiddleware>();
+            this._next = next;
+            _logger = loggerFactory.CreateLogger<RequestResponseLoggingMiddleware>();
         }
 
         public async Task Invoke(HttpContext context)
@@ -31,15 +31,15 @@ namespace GMCS_RestAPI.Middlewares
             var requestBody = Encoding.UTF8.GetString(buffer);
             context.Request.Body.Seek(0, SeekOrigin.Begin);
 
-            logger.LogInformation(requestBody);
+            _logger.LogInformation(requestBody);
 
             var originalBodyStream = context.Response.Body;
 
-            using (var responseBody = new MemoryStream())
+            await using (var responseBody = new MemoryStream())
             {
                 context.Response.Body = responseBody;
 
-                await next(context);
+                await _next(context);
 
                 context.Response.Body.Seek(0, SeekOrigin.Begin);
                 var response = await new StreamReader(context.Response.Body).ReadToEndAsync();
@@ -47,7 +47,7 @@ namespace GMCS_RestAPI.Middlewares
 
                 _timer.Stop();
 
-                logger.LogInformation($"Time: {_timer.ElapsedMilliseconds} \r\n Body:{response}");
+                _logger.LogInformation($"Time: {_timer.ElapsedMilliseconds} \r\n Body:{response}");
                 await responseBody.CopyToAsync(originalBodyStream);
             }
         }
