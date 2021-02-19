@@ -1,12 +1,12 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Classes;
-using GMCS_RestApi.Domain.Contexts;
-using GMCS_RestApi.Domain.Enums;
-using GMCS_RestApi.Domain.Models;
+using GMCS_RestAPI.Classes;
+using GMCS_RestAPI.Database;
+using GMCS_RestAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestAPI.Controllers
@@ -15,7 +15,7 @@ namespace GMCS_RestAPI.Controllers
 	[Route("[controller]")]
 	public class BooksController : ControllerBase
 	{
-		private readonly ApplicationContext _context;
+		private ApplicationContext _context;
 
 		public BooksController(ApplicationContext context)
 		{
@@ -109,14 +109,14 @@ namespace GMCS_RestAPI.Controllers
 		[Route("ChangeStateToInStock")]
 		public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
 		{
-			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
+			var book = _context.Books.First(x => x.Id == bookId);
 
 			if (book == null)
 			{
 				return BadRequest();
 			}
 
-			book.BookStateId = (int)EBookState.InStock;
+			book.BookStateId = 2;
 
 			book.WhoChanged = Environment.UserName;
 
@@ -136,19 +136,19 @@ namespace GMCS_RestAPI.Controllers
 		[Route("ChangeStateToSold")]
 		public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
 		{
-			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
+			var book = _context.Books.First(x => x.Id == bookId);
 
 			if (book == null)
 			{
 				return BadRequest();
 			}
 
-			if (book.BookStateId != (int)EBookState.InStock)
+			if (book.Id != 2)
 			{
 				return BadRequest("Данной книги нет в налчии");
 			}
 
-			book.BookStateId = (int)EBookState.Sold;
+			book.BookStateId = 1;
 
 			book.WhoChanged = Environment.UserName;
 
@@ -177,7 +177,7 @@ namespace GMCS_RestAPI.Controllers
 				return BadRequest(ModelState);
 			}
 
-			await _context.Books.AddAsync(book);
+			_context.Books.Add(book);
 			await _context.SaveChangesAsync();
 			return Ok(book);
 		}
@@ -190,7 +190,7 @@ namespace GMCS_RestAPI.Controllers
 		[HttpDelete]
 		public async Task<ActionResult<Book>> Delete(int bookId)
 		{
-			var book = await _context.Books.FirstOrDefaultAsync(x => x.Id == bookId);
+			var book = _context.Books.FirstOrDefault(x => x.Id == bookId);
 			if (book == null)
 			{
 				return NotFound("не найден автор");

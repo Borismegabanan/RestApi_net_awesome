@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GMCS_RestApi.Domain.Classes
+namespace GMCS_RestAPI.Classes
 {
 	public class CBook
 	{

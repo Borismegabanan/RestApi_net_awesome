@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace GMCS_RestApi.Domain.Models
+namespace GMCS_RestAPI.Models
 {
 	public class Book
 	{
