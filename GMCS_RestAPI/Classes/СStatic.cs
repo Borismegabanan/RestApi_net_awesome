@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using GMCS_RestApi.Domain.Contexts;
-using GMCS_RestApi.Domain.Models;
+using GMCS_RestAPI.Database;
+using GMCS_RestAPI.Models;
 
-namespace GMCS_RestApi.Domain.Classes
+namespace GMCS_RestAPI.Classes
 {
 	public static class СStatic
 	{
