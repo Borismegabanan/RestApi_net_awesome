@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-
-namespace GMCS_RestAPI.Models
+namespace GMCS_RestApi.Domain.Models
 {
 	public class Author
 	{
