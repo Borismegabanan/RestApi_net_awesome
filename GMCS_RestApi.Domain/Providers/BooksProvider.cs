@@ -17,25 +17,33 @@ namespace GMCS_RestApi.Domain.Providers
             _applicationContext = applicationContext;
         }
 
+        /// <summary>
+        /// Получение списка всех книг с полным именем автора.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<CBook>> GetAllBooksAsync()
         {
-            return await _applicationContext.Books.Join(_applicationContext.BookStates, x => x.BookStateId, z => z.Id, (book, state) => new { book, state })
+            return await _applicationContext.Books
                 .Join(
                     _applicationContext.Authors,
-                    x => x.book.AuthorId,
+                    x => x.AuthorId,
                     z => z.Id,
-                    (record, author) => new CBook
+                    (book, author) => new CBook
                     {
-                        Id = record.book.Id,
-                        Name = record.book.Name,
+                        Id = book.Id,
+                        Name = book.Name,
                         Author = author.FullName,
-                        BookState = record.state.Name,
-                        InitDate = record.book.InitDate,
-                        PublishDate = record.book.PublishDate,
-                        WhoChanged = record.book.WhoChanged
+                        BookStateId = book.BookStateId,
+                        InitDate = book.InitDate,
+                        PublishDate = book.PublishDate,
+                        WhoChanged = book.WhoChanged
                     }).ToListAsync();
         }
 
+        /// <summary>
+        /// Получение списка всех книг с полным именем автора.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<Book>> GetBooksByNameAsync(string name)
         {
             return await _applicationContext.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToListAsync();
@@ -56,7 +64,7 @@ namespace GMCS_RestApi.Domain.Providers
                         Name = x.book.Name,
                         Author = x.author.FullName,
                         //Todo: Normal Enum
-                        BookState = x.book.BookStateId.ToString(),
+                        BookStateId = x.book.BookStateId,
                         InitDate = x.book.InitDate,
                         PublishDate = x.book.PublishDate,
                         WhoChanged = x.book.WhoChanged

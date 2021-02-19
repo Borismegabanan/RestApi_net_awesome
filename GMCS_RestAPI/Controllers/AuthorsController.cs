@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Providers;
@@ -17,12 +19,14 @@ namespace GMCS_RestAPI.Controllers
 		private readonly ApplicationContext _context;
 		private readonly IAuthorsProvider _authorsProvider;
 		private readonly IAuthorsService _authorsService;
+		private readonly IMapper _mapper;
 
-		public AuthorsController(ApplicationContext context, IAuthorsProvider authorsProvider, IAuthorsService authorsService)
+		public AuthorsController(ApplicationContext context, IMapper mapper, IAuthorsProvider authorsProvider, IAuthorsService authorsService)
 		{
 			_context = context;
 			_authorsProvider = authorsProvider;
 			_authorsService = authorsService;
+			_mapper = mapper;
 		}
 
 		/// <summary>
@@ -30,11 +34,11 @@ namespace GMCS_RestAPI.Controllers
 		/// </summary>
 		/// <returns></returns>
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Author>>> Get()
+		public async Task<ActionResult<IEnumerable<AuthorResponse>>> Get()
 		{
 			var authors = await _authorsProvider.GetAllAuthors();
 
-			return new ObjectResult(authors);
+			return new ObjectResult(_mapper.Map<IEnumerable<AuthorResponse>>(authors));
 		}
 
 		/// <summary>
@@ -51,7 +55,7 @@ namespace GMCS_RestAPI.Controllers
 				return NotFound();
 			}
 
-			return new ObjectResult(authors);
+			return new ObjectResult(_mapper.Map<IEnumerable<AuthorResponse>>(authors));
 		}
 
 		/// <summary>
@@ -76,6 +80,8 @@ namespace GMCS_RestAPI.Controllers
 
 			author.FullName ??= $"{author.Surname} {author.Name} {author.MiddleName}";
 
+			_authorsService.Post(author);
+
 			return Ok(author);
 		}
 
@@ -97,7 +103,7 @@ namespace GMCS_RestAPI.Controllers
 
 			_authorsService.Delete(author);
 
-			return Ok(author);
+			return Ok(_mapper.Map<AuthorResponse>(author));
 		}
 	}
 }

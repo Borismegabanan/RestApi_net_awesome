@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestApi.Domain.Classes;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Models;
@@ -16,11 +18,13 @@ namespace GMCS_RestAPI.Controllers
     {
         private readonly IBooksProvider _booksProvider;
         private readonly IBooksService _booksService;
+        private readonly IMapper _mapper;
 
-        public BooksController(IBooksProvider booksProvider, IBooksService booksService)
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper)
         {
             this._booksProvider = booksProvider;
             this._booksService = booksService;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -28,9 +32,9 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<CBook>> Get()
+        public async Task<ActionResult<IEnumerable<BookResponse>>> Get()
         {
-            return await _booksProvider.GetAllBooksAsync();
+            return new ObjectResult(_mapper.Map<IEnumerable<BookResponse>>(await _booksProvider.GetAllBooksAsync()));
         }
 
         /// <summary>
@@ -48,7 +52,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(books);
+            return new ObjectResult(_mapper.Map<IEnumerable<BookResponse>>(books));
         }
 
 
@@ -68,7 +72,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(books);
+            return new ObjectResult(_mapper.Map<IEnumerable<BookResponse>>(books));
         }
 
         /// <summary>

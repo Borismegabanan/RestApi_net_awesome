@@ -20,12 +20,32 @@ namespace GMCS_RestApi.Domain.Providers
         /// <returns></returns>
         Task<IEnumerable<Book>> GetBooksByNameAsync(string name);
 
+        /// <summary>
+        /// Получение книг по названию или Имени, или Фамилии или Отчеству автора
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
         Task<IEnumerable<CBook>> GetBooksByMetadata(string metadata);
 
+        /// <summary>
+        /// Получение книги по индефикатору
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         Task<Book> GetBookById(int id);
 
+        /// <summary>
+        /// Показывает есть ли запись в Бд об авторе книги
+        /// </summary>
+        /// <param name="authorId"></param>
+        /// <returns></returns>
         Task<bool> IsBookAuthorExist(int authorId);
-
+        
+        /// <summary>
+        /// Получение книг об индефикатору автора
+        /// </summary>
+        /// <param name="authorId"></param>
+        /// <returns></returns>
         Task<List<Book>> GetBooksByAuthorId(int authorId);
     }
 }
