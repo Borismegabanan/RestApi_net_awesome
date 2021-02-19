@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Database;
-using GMCS_RestAPI.Models;
+using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestAPI.Controllers

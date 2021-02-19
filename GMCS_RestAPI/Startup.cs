@@ -1,4 +1,4 @@
-using GMCS_RestAPI.Database;
+using GMCS_RestApi.Domain.Contexts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using GMCS_RestAPI.Middlewares;
 
 namespace GMCS_RestAPI
 {
@@ -26,6 +27,7 @@ namespace GMCS_RestAPI
 			services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
 
 			services.AddControllers();
+
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "GMCS_RestAPI", Version = "v1" });
@@ -35,12 +37,15 @@ namespace GMCS_RestAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GMCS_RestAPI v1"));
 			}
+
+			app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 			app.UseHttpsRedirection();
 
