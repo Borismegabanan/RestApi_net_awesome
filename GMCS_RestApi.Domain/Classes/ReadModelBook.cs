@@ -2,7 +2,7 @@
 
 namespace GMCS_RestApi.Domain.Classes
 {
-	public class CBook
+	public class ReadModelBook
 	{
 		public int Id { get; set; }
 

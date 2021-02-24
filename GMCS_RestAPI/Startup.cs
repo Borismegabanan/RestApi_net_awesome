@@ -37,7 +37,7 @@ namespace GMCS_RestAPI
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();
 
-            services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile( new Mapping.Mapping())).CreateMapper());
+            services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile( new Mapping.MappingProfile())).CreateMapper());
 
             services.AddSwaggerGen(c =>
             {

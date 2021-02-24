@@ -1,4 +1,5 @@
-﻿using GMCS_RestApi.Domain.Contexts;
+﻿using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Providers;
 
@@ -16,17 +17,17 @@ namespace GMCS_RestApi.Domain.Services
             _booksProvider = booksProvider;
         }
 
-        public async void Post(Author author)
+        public async Task AddAsync(Author author)
         {
             await _applicationContext.Authors.AddAsync(author);
             await _applicationContext.SaveChangesAsync();
         }
 
-        public async void Delete(Author author)
+        public async Task RemoveAsync(Author author)
         {
             _applicationContext.Authors.Remove(author);
             //TODO: Спорный момент, такая логика должна храниться в сервисе или в контроллере?
-            var bookToRemove = await _booksProvider.GetBooksByAuthorId(author.Id);
+            var bookToRemove = await _booksProvider.GetBooksByAuthorIdAsync(author.Id);
 
             _applicationContext.RemoveRange(bookToRemove);
 

@@ -7,16 +7,15 @@ using GMCS_RestApi.Domain.Models;
 
 namespace GMCS_RestAPI.Mapping
 {
-    public class Mapping :Profile
+    public class MappingProfile :Profile
     {
-        public Mapping()
+        public MappingProfile()
         {
             CreateMap<Author, AuthorResponse>().ReverseMap();
 
-            CreateMap<CBook, BookResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(EBookState), c.BookStateId))).ReverseMap();
+            CreateMap<ReadModelBook, BookResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(EBookState), c.BookStateId))).ReverseMap();
 
             CreateMap<Book, BookResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(EBookState), c.BookStateId))).ReverseMap();
-
         }
     }
 }

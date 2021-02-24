@@ -84,7 +84,7 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeStateToInStock")]
         public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
@@ -105,7 +105,7 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeStateToSold")]
         public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
@@ -142,7 +142,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            _booksService.Post(book);
+            _booksService.AddAsync(book);
 
             return Ok(book);
         }
@@ -155,14 +155,14 @@ namespace GMCS_RestAPI.Controllers
         [HttpDelete]
         public async Task<ActionResult<Book>> Delete(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
                 return NotFound("не найдена книга");
             }
 
-            var isAuthorFound = await _booksProvider.IsBookAuthorExist(book.AuthorId);
+            var isAuthorFound = await _booksProvider.IsBookAuthorExistAsync(book.AuthorId);
 
             if (!isAuthorFound)
             {

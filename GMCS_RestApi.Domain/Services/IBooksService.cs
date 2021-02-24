@@ -1,31 +1,32 @@
 ﻿using GMCS_RestApi.Domain.Models;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Services
 {
     public interface IBooksService
     {
-        /// <summary>
-        /// Сменяет статус книги на "В наличии"
-        /// </summary>
-        /// <param name="book"></param>
-        void ChangeStateToInStockAsync(Book book);
+	/// <summary>
+	/// Сменяет статус книги на "В наличии"
+	/// </summary>
+	/// <param name="book"></param>
+	Task ChangeStateToInStockAsync(Book book);
 
         /// <summary>
         /// Сменяет статус книги на "продана"
         /// </summary>
         /// <param name="book"></param>
-        void ChangeStateToSoldAsync(Book book);
+        Task ChangeStateToSoldAsync(Book book);
 
         /// <summary>
         /// Добавляет запись о новой книге
         /// </summary>
         /// <param name="book"></param>
-        void Post(Book book);
+        Task AddAsync(Book book);
 
         /// <summary>
         /// Удаляет книгу
         /// </summary>
         /// <param name="book"></param>
-        void DeleteAsync(Book book);
+        Task DeleteAsync(Book book);
     }
 }

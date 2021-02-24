@@ -80,7 +80,7 @@ namespace GMCS_RestAPI.Controllers
 
 			author.FullName ??= $"{author.Surname} {author.Name} {author.MiddleName}";
 
-			_authorsService.Post(author);
+			_authorsService.AddAsync(author);
 
 			return Ok(author);
 		}
@@ -101,7 +101,7 @@ namespace GMCS_RestAPI.Controllers
 				return NotFound("не найден автор");
 			}
 
-			_authorsService.Delete(author);
+			_authorsService.RemoveAsync(author);
 
 			return Ok(_mapper.Map<AuthorResponse>(author));
 		}

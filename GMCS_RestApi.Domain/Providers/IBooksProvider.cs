@@ -11,7 +11,7 @@ namespace GMCS_RestApi.Domain.Providers
         /// Получение списка всех книг с полным именем автора.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<CBook>> GetAllBooksAsync();
+        Task<IEnumerable<ReadModelBook>> GetAllBooksAsync();
 
         /// <summary>
         /// Получение книг по названию.
@@ -25,27 +25,27 @@ namespace GMCS_RestApi.Domain.Providers
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        Task<IEnumerable<CBook>> GetBooksByMetadata(string metadata);
+        Task<IEnumerable<ReadModelBook>> GetBooksByMetadata(string metadata);
 
         /// <summary>
         /// Получение книги по индефикатору
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<Book> GetBookById(int id);
+        Task<Book> GetBookByIdAsync(int id);
 
         /// <summary>
         /// Показывает есть ли запись в Бд об авторе книги
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
-        Task<bool> IsBookAuthorExist(int authorId);
+        Task<bool> IsBookAuthorExistAsync(int authorId);
         
         /// <summary>
         /// Получение книг об индефикатору автора
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
-        Task<List<Book>> GetBooksByAuthorId(int authorId);
+        Task<List<Book>> GetBooksByAuthorIdAsync(int authorId);
     }
 }
