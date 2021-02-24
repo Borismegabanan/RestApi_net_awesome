@@ -91,7 +91,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest();
             }
 
-            _booksService.ChangeStateToInStockAsync(book);
+            await _booksService.ChangeStateToInStockAsync(book);
 
             return Ok(book);
         }
@@ -117,7 +117,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest("Данной книги нет в налчии");
             }
 
-            _booksService.ChangeStateToSoldAsync(book);
+            await _booksService.ChangeStateToSoldAsync(book);
 
             return Ok(book);
         }
@@ -142,7 +142,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            _booksService.AddAsync(book);
+            await _booksService.AddAsync(book);
 
             return Ok(book);
         }
@@ -169,7 +169,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound("не найден автор");
             }
 
-            _booksService.DeleteAsync(book);
+            await _booksService.DeleteAsync(book);
 
             return Ok(book);
         }

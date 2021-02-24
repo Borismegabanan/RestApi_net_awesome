@@ -11,6 +11,8 @@ namespace GMCS_RestApi.Domain.Providers
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        Task<IEnumerable<Author>> GetAllAuthors(string name = null);
+        Task<IEnumerable<Author>> GetAllAuthorsAsync(string name = null);
+
+        Task<Author> GetTheAuthorAsync(int id);
     }
 }

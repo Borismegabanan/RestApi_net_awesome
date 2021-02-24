@@ -16,7 +16,7 @@ namespace GMCS_RestApi.Domain.Providers
             _applicationContext = applicationContext;
         }
         
-        public async Task<IEnumerable<Author>> GetAllAuthors(string name = null)
+        public async Task<IEnumerable<Author>> GetAllAuthorsAsync(string name = null)
         {
             if (name == null)
             {
@@ -24,6 +24,11 @@ namespace GMCS_RestApi.Domain.Providers
             }
 
             return await _applicationContext.Authors.Where(x => x.FullName.ToLower().Contains(name.ToLower())).ToListAsync();
+        }
+
+        public async Task<Author> GetTheAuthorAsync(int id)
+        {
+            return await _applicationContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }
