@@ -1,7 +1,7 @@
-﻿using GMCS_RestApi.Domain.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Models;
 
-namespace GMCS_RestApi.Domain.Services
+namespace GMCS_RestApi.Domain.Interfaces
 {
     public interface IBooksService
     {
@@ -21,12 +21,12 @@ namespace GMCS_RestApi.Domain.Services
         /// Добавляет запись о новой книге
         /// </summary>
         /// <param name="book"></param>
-        Task AddAsync(Book book);
+        Task CreateBookAsync(Book book);
 
         /// <summary>
         /// Удаляет книгу
         /// </summary>
         /// <param name="book"></param>
-        Task DeleteAsync(Book book);
+        Task RemoveBookAsync(Book book);
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Classes;
+using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,7 +50,7 @@ namespace GMCS_RestApi.Domain.Providers
             return await _applicationContext.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToListAsync();
         }
 
-        public async Task<IEnumerable<ReadModelBook>> GetBooksByMetadata(string metadata)
+        public async Task<IEnumerable<ReadModelBook>> GetBooksByMetadataAsync(string metadata)
         {
             metadata = metadata.ToLower();
 

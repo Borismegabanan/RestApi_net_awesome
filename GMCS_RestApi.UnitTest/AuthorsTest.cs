@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestAPI.Controllers;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
-using GMCS_RestApi.Domain.Providers;
-using GMCS_RestApi.Domain.Services;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -34,9 +33,9 @@ namespace GMCS_RestApi.UnitTests
             var actionResult = await controller.Get();
             var objectResult = (ObjectResult)actionResult.Result;
 
-            Assert.IsAssignableFrom<IEnumerable<AuthorResponse>>(objectResult.Value);
+            Assert.IsAssignableFrom<IEnumerable<AuthorModel>>(objectResult.Value);
             Assert.NotNull(actionResult);
-            Assert.Equal(GetTestAuthors().Result.Count(), ((IEnumerable<AuthorResponse>)objectResult.Value).Count());
+            Assert.Equal((await GetTestAuthors()).Count(), ((IEnumerable<AuthorModel>)objectResult.Value).Count());
         }
 
 
@@ -72,7 +71,7 @@ namespace GMCS_RestApi.UnitTests
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
             var actionResult = await controller.Get("Carroll");
             var objectValue = ((ObjectResult) actionResult.Result).Value;
-            var models = ((IEnumerable<AuthorResponse>) objectValue);
+            var models = ((IEnumerable<AuthorModel>) objectValue);
             
             Assert.Equal("Lewis Carroll",models.First().FullName);
         }

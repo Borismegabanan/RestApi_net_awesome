@@ -13,7 +13,7 @@ namespace GMCS_RestApi.Domain.Contexts
 
 		public DbSet<Book> Books { get; set; }
 
-		public DbSet<BookState> BookStates { get; set; }
+		public DbSet<BookStateDbRecord> BookStates { get; set; }
 
 		public ApplicationContext(DbContextOptions<ApplicationContext> options)
 			: base(options)

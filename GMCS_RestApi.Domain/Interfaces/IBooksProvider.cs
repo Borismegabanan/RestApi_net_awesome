@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Classes;
+using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Models;
 
-namespace GMCS_RestApi.Domain.Providers
+namespace GMCS_RestApi.Domain.Interfaces
 {
     public interface IBooksProvider
     {
@@ -25,7 +25,7 @@ namespace GMCS_RestApi.Domain.Providers
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        Task<IEnumerable<ReadModelBook>> GetBooksByMetadata(string metadata);
+        Task<IEnumerable<ReadModelBook>> GetBooksByMetadataAsync(string metadata);
 
         /// <summary>
         /// Получение книги по индефикатору

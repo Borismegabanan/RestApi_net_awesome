@@ -5,7 +5,7 @@ namespace GMCS_RestApi.Domain.Enums
     /// <summary>
     /// Возможные состояния книги
     /// </summary>
-    public enum EBookState
+    public enum BookStates
     {
         [Description("Продано")]
         Sold = 1,

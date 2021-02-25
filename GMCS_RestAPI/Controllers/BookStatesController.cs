@@ -23,7 +23,7 @@ namespace GMCS_RestAPI.Controllers
 		/// </summary>
 		/// <returns></returns>
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<BookState>>> Get()
+		public async Task<ActionResult<IEnumerable<BookStateDbRecord>>> Get()
 		{
 			return await _context.BookStates.ToListAsync();
 		}

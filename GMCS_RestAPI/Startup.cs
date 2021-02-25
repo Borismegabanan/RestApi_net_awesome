@@ -1,5 +1,6 @@
 using AutoMapper;
 using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
 using Microsoft.AspNetCore.Builder;

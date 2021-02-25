@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 

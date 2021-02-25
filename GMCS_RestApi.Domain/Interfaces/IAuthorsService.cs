@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using GMCS_RestApi.Domain.Models;
 
-namespace GMCS_RestApi.Domain.Services
+namespace GMCS_RestApi.Domain.Interfaces
 {
     public interface IAuthorsService
     {
@@ -9,13 +9,13 @@ namespace GMCS_RestApi.Domain.Services
         /// Добавляет запись о новом авторе
         /// </summary>
         /// <param name="author"></param>
-        Task AddAsync(Author author);
+        Task CreateAuthorAsync(Author author);
         
         /// <summary>
         /// Удаляет автора и все его книги
         /// </summary>
         /// <param name="author"></param>
-        Task RemoveAsync(Author author);
+        Task RemoveAuthorAsync(Author author);
 
     }
 }
