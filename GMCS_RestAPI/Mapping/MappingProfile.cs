@@ -1,7 +1,7 @@
 ﻿using System;
 using AutoMapper;
 using GMCS_RestAPI.Contracts.Response;
-using GMCS_RestApi.Domain.Classes;
+using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Models;
 
@@ -11,11 +11,13 @@ namespace GMCS_RestAPI.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Author, AuthorResponse>().ReverseMap();
+            CreateMap<Author, AuthorModel>().ReverseMap();
 
-            CreateMap<ReadModelBook, BookResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(EBookState), c.BookStateId))).ReverseMap();
+            CreateMap<ReadModelBook, BookModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
 
-            CreateMap<Book, BookResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(EBookState), c.BookStateId))).ReverseMap();
+            CreateMap<Book, BookModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
+
+            CreateMap<AuthorCreateModel, Author>().ReverseMap();
         }
     }
 }

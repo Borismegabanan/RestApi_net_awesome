@@ -84,14 +84,14 @@ namespace GMCS_RestApi.UnitTests
         public async Task AddAuthor_SuccessTestAsync()
         {
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var newModel = GetTestAuthors().Result.First();
+            var newModel = ((await GetTestAuthors()).First());
 
-            var actionResult = await controller.Post(newModel);
+            var actionResult = await controller.CreateAuthorAsync(_mapper.Map<AuthorCreateModel>(newModel));
             var objectResult = (ObjectResult) actionResult.Result;
-            var model = (Author) objectResult.Value;
+            var model = (AuthorCreateModel) objectResult.Value;
 
             Assert.NotNull(model);
-            AuthorServiceMock.Verify(r => r.AddAsync(newModel));
+            AuthorServiceMock.Verify(r => r.CreateAuthorAsync(newModel));
         }
 
         [Fact]
@@ -100,12 +100,12 @@ namespace GMCS_RestApi.UnitTests
             AuthorProviderMock.Setup(prov => prov.GetTheAuthorAsync(0)).Returns(GetTestAuthor);
 
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var actionResult = await controller.Delete(0);
-            var oldModel = (AuthorResponse)((ObjectResult)actionResult.Result).Value;
+            var actionResult = await controller.DeleteAuthorAsync(0);
+            var oldModel = (AuthorModel)((ObjectResult)actionResult.Result).Value;
 
-            Assert.True(oldModel.FullName==GetTestAuthor().Result.FullName);
+            Assert.True(oldModel.FullName == (await GetTestAuthor()).FullName);
 
-            //AuthorServiceMock.Verify(r => r.RemoveAsync(GetTestAuthor().Result));
+            //AuthorServiceMock.Verify(r => r.RemoveAuthorAsync(GetTestAuthor().Result));
         }
 
 #pragma warning disable 1998
