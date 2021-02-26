@@ -18,7 +18,7 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        Task<IEnumerable<Book>> GetBooksByNameAsync(string name);
+        Task<IEnumerable<ReadModelBook>> GetBooksByNameAsync(string name);
 
         /// <summary>
         /// Получение книг по названию или Имени, или Фамилии или Отчеству автора

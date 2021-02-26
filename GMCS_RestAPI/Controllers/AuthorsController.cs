@@ -33,7 +33,7 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AuthorModel>>> Get()
+        public async Task<ActionResult<IEnumerable<AuthorModel>>> GetAllAuthorsAsync()
         {
             var authors = await _authorsProvider.GetAllAuthorsAsync();
 
@@ -46,7 +46,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="name"></param>
         /// <returns></returns>
         [HttpGet("{name}")]
-        public async Task<ActionResult<IEnumerable<AuthorModel>>> Get(string name)
+        public async Task<ActionResult<IEnumerable<AuthorModel>>> GetAuthorByNameAsync(string name)
         {
             var authors = await _authorsProvider.GetAllAuthorsAsync(name);
             if (!authors.Any())
@@ -63,7 +63,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="author"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<AuthorRequest>> CreateAuthorAsync(AuthorRequest author)
+        public async Task<ActionResult<AuthorModel>> CreateAuthorAsync(AuthorRequest author)
         {
             if (author == null)
             {
@@ -77,7 +77,7 @@ namespace GMCS_RestAPI.Controllers
 
             await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(author));
 
-            return Ok(author);
+            return Ok(_mapper.Map<AuthorModel>(author));
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<AuthorModel>> DeleteAuthorAsync(int id)
+        public async Task<ActionResult<AuthorModel>> RemoveAuthorAsync(int id)
         {
             var query = new AuthorQuery() {Id = id};
             if (!await _authorsProvider.IsAuthorExistAsync(query))

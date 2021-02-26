@@ -31,7 +31,7 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookModel>>> Get()
+        public async Task<ActionResult<IEnumerable<BookModel>>> GetAllBooksAsync()
         {
             return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(await _booksProvider.GetAllBooksAsync()));
         }
@@ -42,7 +42,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="name"></param>
         /// <returns></returns>
         [HttpGet("{name}")]
-        public async Task<ActionResult<IEnumerable<Book>>> Get(string name)
+        public async Task<ActionResult<IEnumerable<BookModel>>> GetBooksByNameAsync(string name)
         {
             var books = await _booksProvider.GetBooksByNameAsync(name);
 
@@ -62,7 +62,7 @@ namespace GMCS_RestAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Search/{metadata}")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetFromMetadata(string metadata)
+        public async Task<ActionResult<IEnumerable<BookModel>>> GetBooksFromMetadataAsync(string metadata)
         {
             var books = await _booksProvider.GetBooksByMetadataAsync(metadata);
 
@@ -80,8 +80,8 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("ChangeStateToInStock")]
-        public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
+        [Route("ChangeBookStateToInStockAsync")]
+        public async Task<ActionResult<Book>> ChangeBookStateToInStockAsync(int bookId)
         {
             var book = await _booksProvider.GetBookByIdAsync(bookId);
 
@@ -101,8 +101,8 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("ChangeStateToSold")]
-        public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
+        [Route("ChangeBookStateToSoldAsync")]
+        public async Task<ActionResult<Book>> ChangeBookStateToSoldAsync(int bookId)
         {
             var book = await _booksProvider.GetBookByIdAsync(bookId);
 
@@ -127,9 +127,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="book"></param>
         /// <returns></returns>
         [HttpPost]
-#pragma warning disable 1998
-        public async Task<ActionResult<Book>> Post(Book book)
-#pragma warning restore 1998
+        public async Task<ActionResult<Book>> CreateBookAsync(Book book)
         {
             if (book == null)
             {
@@ -152,7 +150,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<Book>> Delete(int bookId)
+        public async Task<ActionResult<Book>> RemoveBookByIdAsync(int bookId)
         {
             var book = await _booksProvider.GetBookByIdAsync(bookId);
 

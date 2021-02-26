@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
 using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
@@ -11,16 +12,18 @@ namespace GMCS_RestApi.Domain.Services
     {
         private readonly ApplicationContext _applicationContext;
         private readonly IBooksProvider _booksProvider;
+        private readonly IMapper _mapper;
 
-        public AuthorsService(ApplicationContext applicationContext, IBooksProvider booksProvider)
+        public AuthorsService(ApplicationContext applicationContext, IBooksProvider booksProvider, IMapper mapper)
         {
             _applicationContext = applicationContext;
             _booksProvider = booksProvider;
+            _mapper = mapper;
         }
 
         public async Task CreateAuthorAsync(CreateAuthorCommand authorCommand)
         {
-            var author = new Author(authorCommand);
+            var author = _mapper.Map<Author>(authorCommand);
 
             await _applicationContext.Authors.AddAsync(author);
             await _applicationContext.SaveChangesAsync();

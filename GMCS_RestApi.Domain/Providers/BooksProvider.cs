@@ -45,9 +45,22 @@ namespace GMCS_RestApi.Domain.Providers
         /// Получение списка всех книг с полным именем автора.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Book>> GetBooksByNameAsync(string name)
+        public async Task<IEnumerable<ReadModelBook>> GetBooksByNameAsync(string name)
         {
-            return await _applicationContext.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToListAsync();
+            return await _applicationContext.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).Join(
+                _applicationContext.Authors,
+                x => x.AuthorId,
+                z => z.Id,
+                (book, author) => new ReadModelBook
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Author = author.FullName,
+                    BookStateId = book.BookStateId,
+                    InitDate = book.InitDate,
+                    PublishDate = book.PublishDate,
+                    WhoChanged = book.WhoChanged
+                }).ToListAsync();
         }
 
         public async Task<IEnumerable<ReadModelBook>> GetBooksByMetadataAsync(string metadata)

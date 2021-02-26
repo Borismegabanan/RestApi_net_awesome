@@ -23,7 +23,7 @@ namespace GMCS_RestAPI.Mapping
 
             CreateMap<Author, CreateAuthorCommand>().ReverseMap();
 
-            CreateMap<Author, AuthorRequest>().ReverseMap();
+            CreateMap<AuthorModel, AuthorRequest>().ReverseMap();
         }
     }
 }
