@@ -1,4 +1,6 @@
+using AutoMapper;
 using GMCS_RestApi.Domain.Contexts;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +37,8 @@ namespace GMCS_RestAPI
 
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();
+
+            services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile( new Mapping.MappingProfile())).CreateMapper());
 
             services.AddSwaggerGen(c =>
             {

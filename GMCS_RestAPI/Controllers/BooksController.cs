@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Classes;
+using AutoMapper;
+using GMCS_RestAPI.Contracts.Response;
+using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
-using GMCS_RestApi.Domain.Providers;
-using GMCS_RestApi.Domain.Services;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -16,11 +17,13 @@ namespace GMCS_RestAPI.Controllers
     {
         private readonly IBooksProvider _booksProvider;
         private readonly IBooksService _booksService;
+        private readonly IMapper _mapper;
 
-        public BooksController(IBooksProvider booksProvider, IBooksService booksService)
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper)
         {
             this._booksProvider = booksProvider;
             this._booksService = booksService;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -28,9 +31,9 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<CBook>> Get()
+        public async Task<ActionResult<IEnumerable<BookModel>>> Get()
         {
-            return await _booksProvider.GetAllBooksAsync();
+            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(await _booksProvider.GetAllBooksAsync()));
         }
 
         /// <summary>
@@ -48,7 +51,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(books);
+            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(books));
         }
 
 
@@ -61,14 +64,14 @@ namespace GMCS_RestAPI.Controllers
         [Route("Search/{metadata}")]
         public async Task<ActionResult<IEnumerable<Book>>> GetFromMetadata(string metadata)
         {
-            var books = await _booksProvider.GetBooksByMetadata(metadata);
+            var books = await _booksProvider.GetBooksByMetadataAsync(metadata);
 
             if (!books.Any())
             {
                 return NotFound();
             }
 
-            return new ObjectResult(books);
+            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(books));
         }
 
         /// <summary>
@@ -80,14 +83,14 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeStateToInStock")]
         public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
                 return BadRequest();
             }
 
-            _booksService.ChangeStateToInStockAsync(book);
+            await _booksService.ChangeStateToInStockAsync(book);
 
             return Ok(book);
         }
@@ -101,19 +104,19 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeStateToSold")]
         public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
                 return BadRequest();
             }
 
-            if (book.BookStateId != (int) EBookState.InStock)
+            if (book.BookStateId != (int) BookStates.InStock)
             {
-                return BadRequest("Данной книги нет в налчии");
+                return BadRequest(DisplayMessages.SoldBookBadRequestErrorMessage);
             }
 
-            _booksService.ChangeStateToSoldAsync(book);
+            await _booksService.ChangeStateToSoldAsync(book);
 
             return Ok(book);
         }
@@ -138,7 +141,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            _booksService.Post(book);
+            await _booksService.CreateBookAsync(book);
 
             return Ok(book);
         }
@@ -151,21 +154,21 @@ namespace GMCS_RestAPI.Controllers
         [HttpDelete]
         public async Task<ActionResult<Book>> Delete(int bookId)
         {
-            var book = await _booksProvider.GetBookById(bookId);
+            var book = await _booksProvider.GetBookByIdAsync(bookId);
 
             if (book == null)
             {
-                return NotFound("не найдена книга");
+                return NotFound(DisplayMessages.BookNotFoundErrorMessage);
             }
 
-            var isAuthorFound = await _booksProvider.IsBookAuthorExist(book.AuthorId);
+            var isAuthorFound = await _booksProvider.IsBookAuthorExistAsync(book.AuthorId);
 
             if (!isAuthorFound)
             {
-                return NotFound("не найден автор");
+                return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
             }
 
-            _booksService.DeleteAsync(book);
+            await _booksService.RemoveBookAsync(book);
 
             return Ok(book);
         }

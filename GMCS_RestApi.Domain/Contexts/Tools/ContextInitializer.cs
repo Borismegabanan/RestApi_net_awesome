@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
-using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Models;
 
-namespace GMCS_RestApi.Domain.Classes
+namespace GMCS_RestApi.Domain.Contexts.Tools
 {
-	internal static class СStatic
+	internal static class ContextInitializer
 	{
 		/// <summary>
 		/// Инициализация базы данных тестовыми значениями
@@ -16,17 +15,17 @@ namespace GMCS_RestApi.Domain.Classes
 			if (!context.BookStates.Any())
 			{
 
-				context.BookStates.Add(new BookState
+				context.BookStates.Add(new BookStateDbRecord
 				{
 					Name = "Продана"
 				});
 
-				context.BookStates.Add(new BookState
+				context.BookStates.Add(new BookStateDbRecord
 				{
 					Name = "В наличии"
 				});
 
-				context.BookStates.Add(new BookState
+				context.BookStates.Add(new BookStateDbRecord
 				{
 					Name = "Неизвестно"
 				});

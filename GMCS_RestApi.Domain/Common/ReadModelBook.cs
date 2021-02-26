@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace GMCS_RestApi.Domain.Classes
+namespace GMCS_RestApi.Domain.Common
 {
-	public class CBook
+	public class ReadModelBook
 	{
 		public int Id { get; set; }
 
@@ -12,7 +12,7 @@ namespace GMCS_RestApi.Domain.Classes
 
 		public DateTime PublishDate { get; set; }
 
-		public string BookState { get; set; }
+		public int BookStateId { get; set; }
 
 		public string WhoChanged { get; set; }
 

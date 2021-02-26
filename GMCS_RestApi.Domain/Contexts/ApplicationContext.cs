@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestApi.Domain.Contexts
 {
-	public sealed class ApplicationContext : DbContext
+	public class ApplicationContext : DbContext
 	{
 		private readonly StreamWriter _logStream = new StreamWriter("log", true);
 
@@ -13,13 +13,15 @@ namespace GMCS_RestApi.Domain.Contexts
 
 		public DbSet<Book> Books { get; set; }
 
-		public DbSet<BookState> BookStates { get; set; }
+		public DbSet<BookStateDbRecord> BookStates { get; set; }
+
+		public ApplicationContext()
+		{
+		}
 
 		public ApplicationContext(DbContextOptions<ApplicationContext> options)
 			: base(options)
 		{
-			Database.EnsureCreated();
-
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

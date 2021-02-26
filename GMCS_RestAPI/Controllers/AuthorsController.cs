@@ -2,102 +2,101 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Contexts;
+using AutoMapper;
+using GMCS_RestAPI.Contracts.Request;
+using GMCS_RestAPI.Contracts.Response;
+using GMCS_RestApi.Domain.Commands;
+using GMCS_RestApi.Domain.Common;
+using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
-using GMCS_RestApi.Domain.Providers;
-using GMCS_RestApi.Domain.Services;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestAPI.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    public class AuthorsController : Controller
+    {
+        private readonly IAuthorsProvider _authorsProvider;
+        private readonly IAuthorsService _authorsService;
+        private readonly IMapper _mapper;
 
-	[ApiController]
-	[Route("[controller]")]
-	public class AuthorsController : Controller
-	{
-		private readonly ApplicationContext _context;
-		private readonly IAuthorsProvider _authorsProvider;
-		private readonly IAuthorsService _authorsService;
+        public AuthorsController(IMapper mapper, IAuthorsProvider authorsProvider, IAuthorsService authorsService)
+        {
+            _authorsProvider = authorsProvider;
+            _authorsService = authorsService;
+            _mapper = mapper;
+        }
 
-		public AuthorsController(ApplicationContext context, IAuthorsProvider authorsProvider, IAuthorsService authorsService)
-		{
-			_context = context;
-			_authorsProvider = authorsProvider;
-			_authorsService = authorsService;
-		}
+        /// <summary>
+        /// Получение списка авторов.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AuthorModel>>> Get()
+        {
+            var authors = await _authorsProvider.GetAllAuthorsAsync();
 
-		/// <summary>
-		/// Получение списка авторов.
-		/// </summary>
-		/// <returns></returns>
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Author>>> Get()
-		{
-			var authors = await _authorsProvider.GetAllAuthors();
+            return new ObjectResult(_mapper.Map<IEnumerable<AuthorModel>>(authors));
+        }
 
-			return new ObjectResult(authors);
-		}
+        /// <summary>
+        /// Получение автора по его имени.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet("{name}")]
+        public async Task<ActionResult<IEnumerable<AuthorModel>>> Get(string name)
+        {
+            var authors = await _authorsProvider.GetAllAuthorsAsync(name);
+            if (!authors.Any())
+            {
+                return NotFound();
+            }
 
-		/// <summary>
-		/// Получение автора по его имени.
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[HttpGet("{name}")]
-		public async Task<ActionResult<IEnumerable<Author>>> Get(string name)
-		{
-			var authors = await _authorsProvider.GetAllAuthors(name);
-			if (!authors.Any())
-			{
-				return NotFound();
-			}
+            return new ObjectResult(_mapper.Map<IEnumerable<AuthorModel>>(authors));
+        }
 
-			return new ObjectResult(authors);
-		}
+        /// <summary>
+        /// Создание автора.
+        /// </summary>
+        /// <param name="author"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult<AuthorRequest>> CreateAuthorAsync(AuthorRequest author)
+        {
+            if (author == null)
+            {
+                return BadRequest();
+            }
 
-		/// <summary>
-		/// Создание автора.
-		/// </summary>
-		/// <param name="author"></param>
-		/// <returns></returns>
-		[HttpPost]
-#pragma warning disable 1998
-		public async Task<ActionResult<Author>> Post(Author author)
-#pragma warning restore 1998
-		{
-			if (author == null)
-			{
-				return BadRequest();
-			}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
+            await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(author));
 
-			author.FullName ??= $"{author.Surname} {author.Name} {author.MiddleName}";
+            return Ok(author);
+        }
 
-			return Ok(author);
-		}
+        /// <summary>
+        /// Удаление автора и всех его книг.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        public async Task<ActionResult<AuthorModel>> DeleteAuthorAsync(int id)
+        {
+            var query = new AuthorQuery() {Id = id};
+            if (!await _authorsProvider.IsAuthorExistAsync(query))
+            {
+                return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
+            }
 
-		/// <summary>
-		/// Удаление автора и всех его книг.
-		/// </summary>
-		/// <param name="authorId"></param>
-		/// <returns></returns>
-		[HttpDelete]
-#pragma warning disable 1998
-		public async Task<ActionResult<Author>> Delete(int authorId)
-#pragma warning restore 1998
-		{
-			var author = _context.Authors.FirstOrDefault(x => x.Id == authorId);
-			if (author == null)
-			{
-				return NotFound("не найден автор");
-			}
+            var removedAuthor = await _authorsService.RemoveAuthorAsync(query);
 
-			_authorsService.Delete(author);
-
-			return Ok(author);
-		}
-	}
+            return Ok(_mapper.Map<AuthorModel>(removedAuthor));
+        }
+    }
 }
