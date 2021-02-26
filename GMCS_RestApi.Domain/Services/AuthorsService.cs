@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
-using GMCS_RestApi.Domain.Providers;
 
 namespace GMCS_RestApi.Domain.Services
 {
@@ -17,9 +17,9 @@ namespace GMCS_RestApi.Domain.Services
             _booksProvider = booksProvider;
         }
 
-        public async Task CreateAuthorAsync(Author author)
+        public async Task CreateAuthorAsync(CreateAuthorCommand authorCommand)
         {
-            author.FullName ??= $"{author.Surname} {author.Name} {author.MiddleName}";
+            var author = new Author(authorCommand);
 
             await _applicationContext.Authors.AddAsync(author);
             await _applicationContext.SaveChangesAsync();
@@ -28,7 +28,7 @@ namespace GMCS_RestApi.Domain.Services
         public async Task RemoveAuthorAsync(Author author)
         {
             _applicationContext.Authors.Remove(author);
-            //TODO: Спорный момент, такая логика должна храниться в сервисе или в контроллере?
+
             var bookToRemove = await _booksProvider.GetBooksByAuthorIdAsync(author.Id);
 
             _applicationContext.RemoveRange(bookToRemove);

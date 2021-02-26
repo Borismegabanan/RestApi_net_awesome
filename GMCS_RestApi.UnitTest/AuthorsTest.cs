@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestAPI.Controllers;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestAPI.Mapping;
@@ -86,12 +88,12 @@ namespace GMCS_RestApi.UnitTests
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
             var newModel = ((await GetTestAuthors()).First());
 
-            var actionResult = await controller.CreateAuthorAsync(_mapper.Map<AuthorCreateModel>(newModel));
+            var actionResult = await controller.CreateAuthorAsync(_mapper.Map<AuthorRequest>(newModel));
             var objectResult = (ObjectResult) actionResult.Result;
-            var model = (AuthorCreateModel) objectResult.Value;
+            var model = (AuthorRequest) objectResult.Value;
 
             Assert.NotNull(model);
-            AuthorServiceMock.Verify(r => r.CreateAuthorAsync(newModel));
+            AuthorServiceMock.Verify(r => r.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(newModel)));
         }
 
         [Fact]

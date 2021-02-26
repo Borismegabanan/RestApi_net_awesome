@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
@@ -60,7 +62,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="author"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<AuthorModel>> CreateAuthorAsync(AuthorCreateModel author)
+        public async Task<ActionResult<AuthorRequest>> CreateAuthorAsync(AuthorRequest author)
         {
             if (author == null)
             {
@@ -72,7 +74,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _authorsService.CreateAuthorAsync(_mapper.Map<Author>(author));
+            await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(author));
 
             return Ok(author);
         }

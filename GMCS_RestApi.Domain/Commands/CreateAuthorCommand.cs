@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace GMCS_RestAPI.Contracts.Response
+namespace GMCS_RestApi.Domain.Commands
 {
-    public class AuthorCreateModel
+    public class CreateAuthorCommand
     {
         public string Name { get; set; }
 
         public string Surname { get; set; }
 
         public string MiddleName { get; set; }
+
+        public string FullName { get; set; }
 
         public DateTime BirthDate { get; set; }
     }
