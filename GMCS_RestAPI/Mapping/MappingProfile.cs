@@ -22,6 +22,8 @@ namespace GMCS_RestAPI.Mapping
             CreateMap<AuthorRequest, CreateAuthorCommand>().ForMember(a => a.FullName, opt => opt.MapFrom(b => $"{b.Surname} {b.Name} {b.MiddleName}" )).ReverseMap();
 
             CreateMap<Author, CreateAuthorCommand>().ReverseMap();
+
+            CreateMap<Author, AuthorRequest>().ReverseMap();
         }
     }
 }

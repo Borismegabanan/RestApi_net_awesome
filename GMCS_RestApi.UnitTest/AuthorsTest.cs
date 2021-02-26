@@ -9,6 +9,7 @@ using GMCS_RestAPI.Controllers;
 using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,10 +19,12 @@ namespace GMCS_RestApi.UnitTests
 {
     public class AuthorsTest
     {
-        private static readonly IMapper _mapper = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
+        private static readonly IMapper _mapper =
+            new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
+
         private static readonly Mock<IAuthorsService> AuthorServiceMock = new Mock<IAuthorsService>();
         private static readonly Mock<IAuthorsProvider> AuthorProviderMock = new Mock<IAuthorsProvider>();
-        
+
         /// <summary>
         /// Тестирование получения авторов
         /// </summary>
@@ -33,11 +36,11 @@ namespace GMCS_RestApi.UnitTests
 
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
             var actionResult = await controller.Get();
-            var objectResult = (ObjectResult)actionResult.Result;
+            var objectResult = (ObjectResult) actionResult.Result;
 
             Assert.IsAssignableFrom<IEnumerable<AuthorModel>>(objectResult.Value);
             Assert.NotNull(actionResult);
-            Assert.Equal((await GetTestAuthors()).Count(), ((IEnumerable<AuthorModel>)objectResult.Value).Count());
+            Assert.Equal((await GetTestAuthors()).Count(), ((IEnumerable<AuthorModel>) objectResult.Value).Count());
         }
 
 
@@ -55,7 +58,7 @@ namespace GMCS_RestApi.UnitTests
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
             var actionResult = await controller.Get("TestName");
 
-            Assert.Equal(new NotFoundResult().StatusCode, ((NotFoundResult)actionResult.Result).StatusCode);
+            Assert.Equal(new NotFoundResult().StatusCode, ((NotFoundResult) actionResult.Result).StatusCode);
 
         }
 
@@ -74,8 +77,8 @@ namespace GMCS_RestApi.UnitTests
             var actionResult = await controller.Get("Carroll");
             var objectValue = ((ObjectResult) actionResult.Result).Value;
             var models = ((IEnumerable<AuthorModel>) objectValue);
-            
-            Assert.Equal("Lewis Carroll",models.First().FullName);
+
+            Assert.Equal("Lewis Carroll", models.First().FullName);
         }
 
         /// <summary>
@@ -93,21 +96,25 @@ namespace GMCS_RestApi.UnitTests
             var model = (AuthorRequest) objectResult.Value;
 
             Assert.NotNull(model);
-            AuthorServiceMock.Verify(r => r.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(newModel)));
+            //AuthorServiceMock.Verify(r => r.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(newModel)));
         }
 
         [Fact]
         public async Task RemoveAuthor_SuccessTestAsync()
         {
-            AuthorProviderMock.Setup(prov => prov.GetTheAuthorAsync(0)).Returns(GetTestAuthor);
+            var query = new AuthorQuery() {Id = 1};
+
+            AuthorProviderMock.Setup(prov => prov.IsAuthorExistAsync(query))
+                .Returns(GetTrue);
+            AuthorServiceMock.Setup(serv => serv.RemoveAuthorAsync(query)).Returns(GetTestAuthor);
 
             var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var actionResult = await controller.DeleteAuthorAsync(0);
-            var oldModel = (AuthorModel)((ObjectResult)actionResult.Result).Value;
+            var actionResult = await controller.DeleteAuthorAsync(1);
+            var oldModel = (AuthorModel) ((ObjectResult) actionResult.Result).Value;
 
             Assert.True(oldModel.FullName == (await GetTestAuthor()).FullName);
 
-            //AuthorServiceMock.Verify(r => r.RemoveAuthorAsync(GetTestAuthor().Result));
+            AuthorServiceMock.Verify(r => r.RemoveAuthorAsync(query));
         }
 
 #pragma warning disable 1998
@@ -135,13 +142,13 @@ namespace GMCS_RestApi.UnitTests
             };
         }
 
-
 #pragma warning disable 1998
         private async Task<Author> GetTestAuthor()
 #pragma warning restore 1998
         {
             return new Author()
             {
+                Id = 1,
                 BirthDate = new DateTime(1832, 1, 27),
                 Name = "Carroll",
                 MiddleName = "mid",
@@ -149,6 +156,8 @@ namespace GMCS_RestApi.UnitTests
                 FullName = "Lewis Carroll"
             };
         }
+
+        private async Task<bool> GetTrue() => true;
 
 #pragma warning disable 1998
         private async Task<IEnumerable<Author>> GetEmptyList()

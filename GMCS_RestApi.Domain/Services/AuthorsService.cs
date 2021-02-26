@@ -3,6 +3,7 @@ using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestApi.Domain.Services
 {
@@ -25,15 +26,18 @@ namespace GMCS_RestApi.Domain.Services
             await _applicationContext.SaveChangesAsync();
         }
 
-        public async Task RemoveAuthorAsync(Author author)
+        public async Task<Author> RemoveAuthorAsync(AuthorQuery query)
         {
-            _applicationContext.Authors.Remove(author);
+            var authorModel = await _applicationContext.Authors.FindAsync(query.Id);
+            _applicationContext.Authors.Remove(authorModel);
 
-            var bookToRemove = await _booksProvider.GetBooksByAuthorIdAsync(author.Id);
+            var bookToRemove = await _booksProvider.GetBooksByAuthorIdAsync(query.Id);
 
             _applicationContext.RemoveRange(bookToRemove);
 
             await _applicationContext.SaveChangesAsync();
+
+            return authorModel;
         }
     }
 }

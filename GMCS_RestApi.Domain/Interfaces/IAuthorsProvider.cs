@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {
@@ -19,5 +20,12 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// <param name="id"></param>
         /// <returns></returns>
         Task<Author> GetTheAuthorAsync(int id);
+
+        /// <summary>
+        /// Существует ли автор в БД
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        Task<bool> IsAuthorExistAsync(AuthorQuery query);
     }
 }

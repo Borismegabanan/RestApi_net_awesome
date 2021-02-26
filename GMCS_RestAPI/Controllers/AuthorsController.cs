@@ -9,6 +9,7 @@ using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -82,21 +83,20 @@ namespace GMCS_RestAPI.Controllers
         /// <summary>
         /// Удаление автора и всех его книг.
         /// </summary>
-        /// <param name="authorId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<AuthorModel>> DeleteAuthorAsync(int authorId)
+        public async Task<ActionResult<AuthorModel>> DeleteAuthorAsync(int id)
         {
-            var author = _authorsProvider.GetTheAuthorAsync(authorId).Result;
-
-            if (author == null)
+            var query = new AuthorQuery() {Id = id};
+            if (!await _authorsProvider.IsAuthorExistAsync(query))
             {
                 return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
             }
 
-            await _authorsService.RemoveAuthorAsync(author);
+            var removedAuthor = await _authorsService.RemoveAuthorAsync(query);
 
-            return Ok(_mapper.Map<AuthorModel>(author));
+            return Ok(_mapper.Map<AuthorModel>(removedAuthor));
         }
     }
 }

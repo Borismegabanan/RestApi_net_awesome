@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace GMCS_RestApi.Domain.Providers
@@ -30,6 +31,11 @@ namespace GMCS_RestApi.Domain.Providers
         public async Task<Author> GetTheAuthorAsync(int id)
         {
             return await _applicationContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> IsAuthorExistAsync(AuthorQuery query)
+        {
+            return await _applicationContext.Authors.Where(x => x.Id == query.Id).AnyAsync();
         }
     }
 }
