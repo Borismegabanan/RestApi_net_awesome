@@ -6,10 +6,11 @@ using AutoMapper;
 using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestAPI.Controllers;
-using GMCS_RestApi.Domain.Commands;
+using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
-using GMCS_RestApi.Domain.Queries;
+using GMCS_RestApi.Domain.Providers;
+using GMCS_RestApi.Domain.Services;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -19,11 +20,18 @@ namespace GMCS_RestApi.UnitTests
 {
     public class AuthorsTest
     {
-        private static readonly IMapper _mapper =
+        private static readonly IMapper Mapper =
             new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
 
         private static readonly Mock<IAuthorsService> AuthorServiceMock = new Mock<IAuthorsService>();
         private static readonly Mock<IAuthorsProvider> AuthorProviderMock = new Mock<IAuthorsProvider>();
+
+        private static readonly ApplicationContext TestContext = new TestDbContext();
+
+        private static readonly IAuthorsProvider AuthorsProvider= new AuthorsProvider(TestContext);
+        private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext));
+
+        private static readonly IEnumerable<Author> DefaultValues = GetTestValueForTestDb();
 
         /// <summary>
         /// Тестирование получения авторов
@@ -32,15 +40,13 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task GetAuthors_TestAsync()
         {
-            AuthorProviderMock.Setup(x => x.GetAllAuthorsAsync(null)).Returns(GetTestAuthors());
-
-            var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
+            var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.Get();
-            var objectResult = (ObjectResult) actionResult.Result;
+            var objectResult = (ObjectResult)actionResult.Result;
 
             Assert.IsAssignableFrom<IEnumerable<AuthorModel>>(objectResult.Value);
             Assert.NotNull(actionResult);
-            Assert.Equal((await GetTestAuthors()).Count(), ((IEnumerable<AuthorModel>) objectResult.Value).Count());
+            Assert.Equal(DefaultValues.Count(), ((IEnumerable<AuthorModel>)objectResult.Value).Count());
         }
 
 
@@ -51,12 +57,8 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task GetAuthorsByName_NotFoundResultTestAsync()
         {
-            //Todo обязательно ли создавать отдельный метод?
-            AuthorProviderMock.Setup(prov => prov.GetAllAuthorsAsync("TestName"))
-                .Returns(GetEmptyList);
-
-            var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var actionResult = await controller.Get("TestName");
+            var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
+            var actionResult = await controller.Get("namename");
 
             Assert.Equal(new NotFoundResult().StatusCode, ((NotFoundResult) actionResult.Result).StatusCode);
 
@@ -69,16 +71,12 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task GetAuthorByName_FoundTestAsync()
         {
-            //Todo какой-то очень ужасный метод
-            AuthorProviderMock.Setup(prov => prov.GetAllAuthorsAsync("Carroll"))
-                .Returns(GetTestAuthors);
-
-            var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var actionResult = await controller.Get("Carroll");
+            var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
+            var actionResult = await controller.Get(DefaultValues.First().Name);
             var objectValue = ((ObjectResult) actionResult.Result).Value;
             var models = ((IEnumerable<AuthorModel>) objectValue);
 
-            Assert.Equal("Lewis Carroll", models.First().FullName);
+            Assert.Equal(DefaultValues.First().FullName, models.First().FullName);
         }
 
         /// <summary>
@@ -88,82 +86,55 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task AddAuthor_SuccessTestAsync()
         {
-            var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
-            var newModel = ((await GetTestAuthors()).First());
+            var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
+            var newModel = new AuthorRequest()
+                {BirthDate = DateTime.Now, MiddleName = "test", Surname = "testSurname", Name = "testName"};
 
-            var actionResult = await controller.CreateAuthorAsync(_mapper.Map<AuthorRequest>(newModel));
-            var objectResult = (ObjectResult) actionResult.Result;
-            var model = (AuthorRequest) objectResult.Value;
+            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<AuthorRequest>(newModel));
+            var objectResult = (ObjectResult)actionResult.Result;
+            var model = (AuthorRequest)objectResult.Value;
 
             Assert.NotNull(model);
-            //AuthorServiceMock.Verify(r => r.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(newModel)));
         }
 
         [Fact]
         public async Task RemoveAuthor_SuccessTestAsync()
         {
-            var query = new AuthorQuery() {Id = 1};
-
-            AuthorProviderMock.Setup(prov => prov.IsAuthorExistAsync(query))
-                .Returns(GetTrue);
-            AuthorServiceMock.Setup(serv => serv.RemoveAuthorAsync(query)).Returns(GetTestAuthor);
-
-            var controller = new AuthorsController(_mapper, AuthorProviderMock.Object, AuthorServiceMock.Object);
+            var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.DeleteAuthorAsync(1);
             var oldModel = (AuthorModel) ((ObjectResult) actionResult.Result).Value;
 
-            Assert.True(oldModel.FullName == (await GetTestAuthor()).FullName);
-
-            AuthorServiceMock.Verify(r => r.RemoveAuthorAsync(query));
+            Assert.True(oldModel.FullName == DefaultValues.First().FullName);
+            
         }
 
-#pragma warning disable 1998
-        private async Task<IEnumerable<Author>> GetTestAuthors()
-#pragma warning restore 1998
+        private static IEnumerable<Author> GetTestValueForTestDb()
         {
-            return new List<Author>
+            var listOfAuthors = new List<Author>()
             {
                 new Author()
                 {
-                    BirthDate = new DateTime(1832, 1, 27),
-                    Name = "Carroll",
-                    MiddleName = "mid",
-                    Surname = "Lewis",
-                    FullName = "Lewis Carroll"
+                    BirthDate = DateTime.Now,
+                    Name = "Test",
+                    Surname = "SurnameTest",
+                    MiddleName = "MiddTest",
+                    FullName = "SurnameTest Test MiddTest"
                 },
                 new Author()
                 {
-                    BirthDate = new DateTime(1998, 6, 23),
-                    Name = "Борис",
-                    MiddleName = "Валентинович",
-                    Surname = "Красильников",
-                    FullName = "Красильников Борис Валентинович"
+                    BirthDate = DateTime.Now,
+                    Name = "Test2",
+                    Surname = "SurnameTest2",
+                    MiddleName = "MiddTest2",
+                    FullName = "SurnameTest2 Test2 MiddTest2"
                 }
             };
-        }
 
-#pragma warning disable 1998
-        private async Task<Author> GetTestAuthor()
-#pragma warning restore 1998
-        {
-            return new Author()
-            {
-                Id = 1,
-                BirthDate = new DateTime(1832, 1, 27),
-                Name = "Carroll",
-                MiddleName = "mid",
-                Surname = "Lewis",
-                FullName = "Lewis Carroll"
-            };
-        }
+            TestContext.Authors.AddRange(listOfAuthors);
+            TestContext.SaveChanges();
 
-        private async Task<bool> GetTrue() => true;
-
-#pragma warning disable 1998
-        private async Task<IEnumerable<Author>> GetEmptyList()
-#pragma warning restore 1998
-        {
-            return new List<Author>();
+            return listOfAuthors;
         }
+        
     }
 }
