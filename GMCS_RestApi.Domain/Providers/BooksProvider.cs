@@ -58,7 +58,7 @@ namespace GMCS_RestApi.Domain.Providers
                     (book, author) => new {book, author}).Where(x =>
                     x.book.Name.ToLower() == metadata || x.author.Name.ToLower() == metadata ||
                     x.author.Surname.ToLower() == metadata || x.author.MiddleName.ToLower() == metadata).Select(x =>
-		    new ReadModelBook
+                    new ReadModelBook
                     {
                         Id = x.book.Id,
                         Name = x.book.Name,
