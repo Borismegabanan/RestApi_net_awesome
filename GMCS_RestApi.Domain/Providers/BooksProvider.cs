@@ -84,8 +84,14 @@ namespace GMCS_RestApi.Domain.Providers
                       }).ToListAsync();
         }
 
-        public async Task<bool> IsBookAuthorExistAsync(int authorId)
+        public Task<bool> IsBookExist(int bookId)
         {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task<bool> IsBookAuthorExistAsync(int bookId)
+        {
+            var authorId = (await _applicationContext.Books.FirstOrDefaultAsync(x => x.Id == bookId)).AuthorId;
             return await _applicationContext.Authors.AnyAsync(x => x.Id == authorId);
         }
 

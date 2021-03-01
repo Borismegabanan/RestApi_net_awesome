@@ -27,26 +27,39 @@ namespace GMCS_RestApi.Domain.Interfaces
         Task<IEnumerable<ReadModelBook>> GetBooksByMetadataAsync(string metadata);
 
         /// <summary>
-        /// Получение книги по индефикатору
+        /// Получение книги по индефикатору.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         Task<Book> GetBookByIdAsync(int id);
 
         /// <summary>
-        /// Показывает есть ли запись в Бд об авторе книги
+        /// получение полный данных о книге по индефикатору.
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        Task<ReadModelBook> GetBookReadModelByIdAsync(int bookId);
+
+        /// <summary>
+        /// Показывает есть ли запись в Бд о книге.
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        Task<bool> IsBookExist(int bookId);
+
+        /// <summary>
+        /// Показывает есть ли запись в Бд об авторе книги.
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
         Task<bool> IsBookAuthorExistAsync(int authorId);
 
         /// <summary>
-        /// Получение книг об индефикатору автора
+        /// Получение книг об индефикатору автора.
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
         Task<List<Book>> GetBooksByAuthorIdAsync(int authorId);
 
-        Task<ReadModelBook> GetBookReadModelByIdAsync(int bookId);
     }
 }

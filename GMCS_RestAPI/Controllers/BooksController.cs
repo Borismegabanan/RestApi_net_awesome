@@ -3,12 +3,12 @@ using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
-using GMCS_RestApi.Domain.Models;
 using GMCS_RestAPI.Contracts.Response;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -82,7 +82,7 @@ namespace GMCS_RestAPI.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("ChangeBookStateToInStockAsync")]
-        public async Task<ActionResult<Book>> ChangeBookStateToInStockAsync(int bookId)
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToInStockAsync(int bookId)
         {
             var book = await _booksProvider.GetBookByIdAsync(bookId);
 
@@ -93,7 +93,7 @@ namespace GMCS_RestAPI.Controllers
 
             await _booksService.ChangeStateToInStockAsync(book);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(book));
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace GMCS_RestAPI.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("ChangeBookStateToSoldAsync")]
-        public async Task<ActionResult<Book>> ChangeBookStateToSoldAsync(int bookId)
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToSoldAsync(int bookId)
         {
             var book = await _booksProvider.GetBookByIdAsync(bookId);
 
@@ -119,7 +119,7 @@ namespace GMCS_RestAPI.Controllers
 
             await _booksService.ChangeStateToSoldAsync(book);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(book));
         }
 
         /// <summary>
@@ -153,25 +153,23 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<Book>> RemoveBookByIdAsync(int bookId)
+        public async Task<ActionResult<BookDisplayModel>> RemoveBookByIdAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
-
-            if (book == null)
+            if (!await _booksProvider.IsBookExist(bookId))
             {
                 return NotFound(DisplayMessages.BookNotFoundErrorMessage);
             }
 
-            var isAuthorFound = await _booksProvider.IsBookAuthorExistAsync(book.AuthorId);
-
-            if (!isAuthorFound)
+            if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
             {
                 return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
             }
+            //Todo automapper?
+            var bookQuery = new BookQuery() { Id = bookId };
 
-            await _booksService.RemoveBookAsync(book);
+            var removedBook = await _booksService.RemoveBookAsync(bookQuery);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(removedBook));
         }
     }
 }

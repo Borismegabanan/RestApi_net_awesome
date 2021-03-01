@@ -37,7 +37,6 @@ namespace GMCS_RestApi.Domain.Services
             var bookToRemove = await _booksProvider.GetBooksByAuthorIdAsync(query.Id);
 
             _applicationContext.RemoveRange(bookToRemove);
-
             await _applicationContext.SaveChangesAsync();
 
             return authorModel;

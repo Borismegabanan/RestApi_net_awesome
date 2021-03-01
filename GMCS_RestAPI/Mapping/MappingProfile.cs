@@ -9,14 +9,14 @@ using System;
 
 namespace GMCS_RestAPI.Mapping
 {
-    public class MappingProfile :Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
             CreateMap<Author, AuthorDisplayModel>().ReverseMap();
-            CreateMap<DeleteAuthorRequest, CreateAuthorCommand>().ForMember(a => a.FullName, opt => opt.MapFrom(b => $"{b.Surname} {b.Name} {b.MiddleName}" )).ReverseMap();
+            CreateMap<CreateAuthorRequest, CreateAuthorCommand>().ForMember(a => a.FullName, opt => opt.MapFrom(b => $"{b.Surname} {b.Name} {b.MiddleName}")).ReverseMap();
             CreateMap<Author, CreateAuthorCommand>().ReverseMap();
-            CreateMap<AuthorDisplayModel, DeleteAuthorRequest>().ReverseMap();
+            CreateMap<AuthorDisplayModel, CreateAuthorRequest>().ReverseMap();
 
             CreateMap<ReadModelBook, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
             CreateMap<Book, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();

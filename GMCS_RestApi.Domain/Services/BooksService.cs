@@ -7,6 +7,7 @@ using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using System;
 using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestApi.Domain.Services
 {
@@ -55,10 +56,15 @@ namespace GMCS_RestApi.Domain.Services
             return book.Id;
         }
 
-        public async Task RemoveBookAsync(Book book)
+        public async Task<Book> RemoveBookAsync(BookQuery bookQuery)
         {
+
+            var book = await _applicationContext.Books.FindAsync(bookQuery.Id);
+
             _applicationContext.Books.Remove(book);
             await _applicationContext.SaveChangesAsync();
+
+            return book;
         }
     }
 }

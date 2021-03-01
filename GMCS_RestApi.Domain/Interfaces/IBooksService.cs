@@ -1,6 +1,7 @@
 ﻿using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Models;
 using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {
@@ -27,7 +28,7 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// <summary>
         /// Удаляет книгу
         /// </summary>
-        /// <param name="book"></param>
-        Task RemoveBookAsync(Book book);
+        /// <param name="bookQuery"></param>
+        Task<Book> RemoveBookAsync(BookQuery bookQuery);
     }
 }
