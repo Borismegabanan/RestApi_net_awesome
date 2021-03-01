@@ -23,8 +23,11 @@ namespace GMCS_RestApi.Domain.Services
             ContextInitializer.InitDataBase(_applicationContext);
         }
 
-        public async Task ChangeStateToInStockAsync(Book book)
+        public async Task ChangeStateToInStockAsync(int bookId)
         {
+            var book = await _applicationContext.Books.FindAsync(bookId);
+
+
             book.BookStateId = (int)BookStates.InStock;
 
             book.WhoChanged = Environment.UserName;
@@ -34,8 +37,10 @@ namespace GMCS_RestApi.Domain.Services
             await _applicationContext.SaveChangesAsync();
         }
 
-        public async Task ChangeStateToSoldAsync(Book book)
+        public async Task ChangeStateToSoldAsync(int bookId)
         {
+            var book = await _applicationContext.Books.FindAsync(bookId);
+
             book.BookStateId = (int)BookStates.Sold;
 
             book.WhoChanged = Environment.UserName;

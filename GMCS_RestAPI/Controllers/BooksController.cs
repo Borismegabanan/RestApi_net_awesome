@@ -84,14 +84,14 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeBookStateToInStockAsync")]
         public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToInStockAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
             if (book == null)
             {
                 return BadRequest();
             }
 
-            await _booksService.ChangeStateToInStockAsync(book);
+            await _booksService.ChangeStateToInStockAsync(book.Id);
 
             return Ok(_mapper.Map<BookDisplayModel>(book));
         }
@@ -105,7 +105,7 @@ namespace GMCS_RestAPI.Controllers
         [Route("ChangeBookStateToSoldAsync")]
         public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToSoldAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
             if (book == null)
             {
@@ -117,7 +117,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(DisplayMessages.SoldBookBadRequestErrorMessage);
             }
 
-            await _booksService.ChangeStateToSoldAsync(book);
+            await _booksService.ChangeStateToSoldAsync(book.Id);
 
             return Ok(_mapper.Map<BookDisplayModel>(book));
         }

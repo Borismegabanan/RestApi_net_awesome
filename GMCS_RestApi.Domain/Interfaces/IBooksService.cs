@@ -10,14 +10,14 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// <summary>
         /// Сменяет статус книги на "В наличии"
         /// </summary>
-        /// <param name="book"></param>
-        Task ChangeStateToInStockAsync(Book book);
+        /// <param name="bookId"></param>
+        Task ChangeStateToInStockAsync(int bookId);
 
         /// <summary>
         /// Сменяет статус книги на "продана"
         /// </summary>
-        /// <param name="book"></param>
-        Task ChangeStateToSoldAsync(Book book);
+        /// <param name="bookId"></param>
+        Task ChangeStateToSoldAsync(int bookId);
 
         /// <summary>
         /// Добавляет запись о новой книге
