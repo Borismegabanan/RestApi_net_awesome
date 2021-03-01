@@ -62,7 +62,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="createAuthor"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<AuthorDisplayModel>> CreateAuthorAsync(DeleteAuthorRequest createAuthor)
+        public async Task<ActionResult<AuthorDisplayModel>> CreateAuthorAsync(CreateAuthorRequest createAuthor)
         {
             if (createAuthor == null)
             {

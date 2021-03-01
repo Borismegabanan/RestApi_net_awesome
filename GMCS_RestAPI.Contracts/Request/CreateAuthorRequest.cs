@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GMCS_RestAPI.Contracts.Request
 {
-    public class DeleteAuthorRequest
+    public class CreateAuthorRequest
     {
         [Required(ErrorMessage = "Фамилия, имя и отчество обязательные поля")]
         public string Name { get; set; }

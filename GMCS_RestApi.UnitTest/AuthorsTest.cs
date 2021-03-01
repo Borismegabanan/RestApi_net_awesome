@@ -28,8 +28,8 @@ namespace GMCS_RestApi.UnitTests
 
         private static readonly ApplicationContext TestContext = new TestDbContext();
 
-        private static readonly IAuthorsProvider AuthorsProvider= new AuthorsProvider(TestContext);
-        private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext),Mapper);
+        private static readonly IAuthorsProvider AuthorsProvider = new AuthorsProvider(TestContext);
+        private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext), Mapper);
 
         private static readonly IEnumerable<Author> DefaultValues = GetTestValueForTestDb();
 
@@ -60,7 +60,7 @@ namespace GMCS_RestApi.UnitTests
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.GetAuthorByNameAsync("namename");
 
-            Assert.Equal(new NotFoundResult().StatusCode, ((NotFoundResult) actionResult.Result).StatusCode);
+            Assert.Equal(new NotFoundResult().StatusCode, ((NotFoundResult)actionResult.Result).StatusCode);
 
         }
 
@@ -73,8 +73,8 @@ namespace GMCS_RestApi.UnitTests
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.GetAuthorByNameAsync(DefaultValues.First().Name);
-            var objectValue = ((ObjectResult) actionResult.Result).Value;
-            var models = ((IEnumerable<AuthorDisplayModel>) objectValue);
+            var objectValue = ((ObjectResult)actionResult.Result).Value;
+            var models = ((IEnumerable<AuthorDisplayModel>)objectValue);
 
             Assert.Equal(DefaultValues.First().FullName, models.First().FullName);
         }
@@ -87,10 +87,10 @@ namespace GMCS_RestApi.UnitTests
         public async Task AddAuthor_SuccessTestAsync()
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
-            var newModel = new DeleteAuthorRequest()
-                {BirthDate = DateTime.Now, MiddleName = "test", Surname = "testSurname", Name = "testName"};
+            var newModel = new CreateAuthorRequest()
+            { BirthDate = DateTime.Now, MiddleName = "test", Surname = "testSurname", Name = "testName" };
 
-            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<DeleteAuthorRequest>(newModel));
+            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<CreateAuthorRequest>(newModel));
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (AuthorDisplayModel)objectResult.Value;
 
@@ -105,10 +105,10 @@ namespace GMCS_RestApi.UnitTests
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.RemoveAuthorAsync(1);
-            var oldModel = (AuthorDisplayModel) ((ObjectResult) actionResult.Result).Value;
+            var oldModel = (AuthorDisplayModel)((ObjectResult)actionResult.Result).Value;
 
             Assert.True(oldModel.FullName == DefaultValues.First().FullName);
-            
+
         }
 
         private static IEnumerable<Author> GetTestValueForTestDb()
@@ -138,6 +138,6 @@ namespace GMCS_RestApi.UnitTests
 
             return listOfAuthors;
         }
-        
+
     }
 }
