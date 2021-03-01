@@ -13,19 +13,15 @@ using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace GMCS_RestApi.UnitTests
 {
-    public class AuthorsTest
+    public class AuthorsControllerTest
     {
         private static readonly IMapper Mapper =
             new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
-
-        private static readonly Mock<IAuthorsService> AuthorServiceMock = new Mock<IAuthorsService>();
-        private static readonly Mock<IAuthorsProvider> AuthorProviderMock = new Mock<IAuthorsProvider>();
-
         private static readonly ApplicationContext TestContext = new TestDbContext();
 
         private static readonly IAuthorsProvider AuthorsProvider = new AuthorsProvider(TestContext);
@@ -73,8 +69,8 @@ namespace GMCS_RestApi.UnitTests
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.GetAuthorByNameAsync(DefaultValues.First().Name);
-            var objectValue = ((ObjectResult)actionResult.Result).Value;
-            var models = ((IEnumerable<AuthorDisplayModel>)objectValue);
+            var objectValue = (ObjectResult)actionResult.Result;
+            var models = (IEnumerable<AuthorDisplayModel>)objectValue.Value;
 
             Assert.Equal(DefaultValues.First().FullName, models.First().FullName);
         }
@@ -103,14 +99,17 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task RemoveAuthor_SuccessTestAsync()
         {
+            var idToDelete = DefaultValues.Count();
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
-            var actionResult = await controller.RemoveAuthorAsync(1);
+            var actionResult = await controller.RemoveAuthorAsync(idToDelete);
             var oldModel = (AuthorDisplayModel)((ObjectResult)actionResult.Result).Value;
 
-            Assert.True(oldModel.FullName == DefaultValues.First().FullName);
+            Assert.True(oldModel.FullName == DefaultValues.Last().FullName);
+            Assert.False(await TestContext.Authors.AnyAsync(x => x.Id == idToDelete));
 
         }
 
+        //Todo non async. В теории может выбиваться 
         private static IEnumerable<Author> GetTestValueForTestDb()
         {
             var listOfAuthors = new List<Author>()

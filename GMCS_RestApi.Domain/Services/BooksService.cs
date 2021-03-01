@@ -13,7 +13,6 @@ namespace GMCS_RestApi.Domain.Services
 {
     public class BooksService : IBooksService
     {
-
         private readonly ApplicationContext _applicationContext;
         private readonly IMapper _mapper;
 
