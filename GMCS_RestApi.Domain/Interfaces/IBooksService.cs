@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Models;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {
@@ -20,8 +21,8 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// <summary>
         /// Добавляет запись о новой книге
         /// </summary>
-        /// <param name="book"></param>
-        Task CreateBookAsync(Book book);
+        /// <param name="bookCommand"></param>
+        Task<int> CreateBookAsync(CreateBookCommand bookCommand);
 
         /// <summary>
         /// Удаляет книгу

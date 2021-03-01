@@ -1,10 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Contexts.Tools;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Services
 {
@@ -12,9 +14,11 @@ namespace GMCS_RestApi.Domain.Services
     {
 
         private readonly ApplicationContext _applicationContext;
+        private readonly IMapper _mapper;
 
-        public BooksService(ApplicationContext applicationContext)
+        public BooksService(ApplicationContext applicationContext, IMapper mapper)
         {
+            _mapper = mapper;
             _applicationContext = applicationContext;
             ContextInitializer.InitDataBase(_applicationContext);
         }
@@ -41,10 +45,14 @@ namespace GMCS_RestApi.Domain.Services
             await _applicationContext.SaveChangesAsync();
         }
 
-        public async Task CreateBookAsync(Book book)
+        public async Task<int> CreateBookAsync(CreateBookCommand bookCommand)
         {
+            var book = _mapper.Map<Book>(bookCommand);
+
             await _applicationContext.Books.AddAsync(book);
             await _applicationContext.SaveChangesAsync();
+
+            return book.Id;
         }
 
         public async Task RemoveBookAsync(Book book)

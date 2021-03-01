@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using GMCS_RestAPI.Contracts.Request;
-using GMCS_RestAPI.Contracts.Response;
+﻿using AutoMapper;
 using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Interfaces;
-using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Queries;
+using GMCS_RestAPI.Contracts.Request;
+using GMCS_RestAPI.Contracts.Response;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -33,11 +32,11 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AuthorModel>>> GetAllAuthorsAsync()
+        public async Task<ActionResult<IEnumerable<AuthorDisplayModel>>> GetAllAuthorsAsync()
         {
             var authors = await _authorsProvider.GetAllAuthorsAsync();
 
-            return new ObjectResult(_mapper.Map<IEnumerable<AuthorModel>>(authors));
+            return new ObjectResult(_mapper.Map<IEnumerable<AuthorDisplayModel>>(authors));
         }
 
         /// <summary>
@@ -46,7 +45,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="name"></param>
         /// <returns></returns>
         [HttpGet("{name}")]
-        public async Task<ActionResult<IEnumerable<AuthorModel>>> GetAuthorByNameAsync(string name)
+        public async Task<ActionResult<IEnumerable<AuthorDisplayModel>>> GetAuthorByNameAsync(string name)
         {
             var authors = await _authorsProvider.GetAllAuthorsAsync(name);
             if (!authors.Any())
@@ -54,18 +53,18 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(_mapper.Map<IEnumerable<AuthorModel>>(authors));
+            return new ObjectResult(_mapper.Map<IEnumerable<AuthorDisplayModel>>(authors));
         }
 
         /// <summary>
         /// Создание автора.
         /// </summary>
-        /// <param name="author"></param>
+        /// <param name="createAuthor"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<AuthorModel>> CreateAuthorAsync(AuthorRequest author)
+        public async Task<ActionResult<AuthorDisplayModel>> CreateAuthorAsync(DeleteAuthorRequest createAuthor)
         {
-            if (author == null)
+            if (createAuthor == null)
             {
                 return BadRequest();
             }
@@ -75,9 +74,9 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(author));
+            await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(createAuthor));
 
-            return Ok(_mapper.Map<AuthorModel>(author));
+            return Ok(_mapper.Map<AuthorDisplayModel>(createAuthor));
         }
 
         /// <summary>
@@ -86,9 +85,9 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<AuthorModel>> RemoveAuthorAsync(int id)
+        public async Task<ActionResult<AuthorDisplayModel>> RemoveAuthorAsync(int id)
         {
-            var query = new AuthorQuery() {Id = id};
+            var query = new AuthorQuery() { Id = id };
             if (!await _authorsProvider.IsAuthorExistAsync(query))
             {
                 return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
@@ -96,7 +95,7 @@ namespace GMCS_RestAPI.Controllers
 
             var removedAuthor = await _authorsService.RemoveAuthorAsync(query);
 
-            return Ok(_mapper.Map<AuthorModel>(removedAuthor));
+            return Ok(_mapper.Map<AuthorDisplayModel>(removedAuthor));
         }
     }
 }

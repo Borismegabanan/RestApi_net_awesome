@@ -44,9 +44,9 @@ namespace GMCS_RestApi.UnitTests
             var actionResult = await controller.GetAllAuthorsAsync();
             var objectResult = (ObjectResult)actionResult.Result;
 
-            Assert.IsAssignableFrom<IEnumerable<AuthorModel>>(objectResult.Value);
+            Assert.IsAssignableFrom<IEnumerable<AuthorDisplayModel>>(objectResult.Value);
             Assert.NotNull(actionResult);
-            Assert.Equal(DefaultValues.Count(), ((IEnumerable<AuthorModel>)objectResult.Value).Count());
+            Assert.Equal(DefaultValues.Count(), ((IEnumerable<AuthorDisplayModel>)objectResult.Value).Count());
         }
 
 
@@ -74,7 +74,7 @@ namespace GMCS_RestApi.UnitTests
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.GetAuthorByNameAsync(DefaultValues.First().Name);
             var objectValue = ((ObjectResult) actionResult.Result).Value;
-            var models = ((IEnumerable<AuthorModel>) objectValue);
+            var models = ((IEnumerable<AuthorDisplayModel>) objectValue);
 
             Assert.Equal(DefaultValues.First().FullName, models.First().FullName);
         }
@@ -87,22 +87,25 @@ namespace GMCS_RestApi.UnitTests
         public async Task AddAuthor_SuccessTestAsync()
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
-            var newModel = new AuthorRequest()
+            var newModel = new DeleteAuthorRequest()
                 {BirthDate = DateTime.Now, MiddleName = "test", Surname = "testSurname", Name = "testName"};
 
-            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<AuthorRequest>(newModel));
+            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<DeleteAuthorRequest>(newModel));
             var objectResult = (ObjectResult)actionResult.Result;
-            var model = (AuthorModel)objectResult.Value;
+            var model = (AuthorDisplayModel)objectResult.Value;
 
             Assert.NotNull(model);
         }
-
+        /// <summary>
+        /// Тест на удачное удаление
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task RemoveAuthor_SuccessTestAsync()
         {
             var controller = new AuthorsController(Mapper, AuthorsProvider, AuthorsService);
             var actionResult = await controller.RemoveAuthorAsync(1);
-            var oldModel = (AuthorModel) ((ObjectResult) actionResult.Result).Value;
+            var oldModel = (AuthorDisplayModel) ((ObjectResult) actionResult.Result).Value;
 
             Assert.True(oldModel.FullName == DefaultValues.First().FullName);
             

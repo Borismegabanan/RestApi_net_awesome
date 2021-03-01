@@ -2,7 +2,7 @@
 
 namespace GMCS_RestAPI.Contracts.Response
 {
-	public class AuthorModel
+	public class AuthorDisplayModel
 	{
 		public int Id { get; set; }
 		public string FullName { get; set; }

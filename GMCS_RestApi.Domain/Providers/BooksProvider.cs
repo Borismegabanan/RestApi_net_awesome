@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Common;
+﻿using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Providers
 {
@@ -69,19 +69,19 @@ namespace GMCS_RestApi.Domain.Providers
 
             return await _applicationContext.Books
                 .Join(_applicationContext.Authors, x => x.AuthorId, z => z.Id,
-                    (book, author) => new {book, author}).Where(x =>
-                    x.book.Name.ToLower() == metadata || x.author.Name.ToLower() == metadata ||
-                    x.author.Surname.ToLower() == metadata || x.author.MiddleName.ToLower() == metadata).Select(x =>
-                    new ReadModelBook
-                    {
-                        Id = x.book.Id,
-                        Name = x.book.Name,
-                        Author = x.author.FullName,
-                        BookStateId = x.book.BookStateId,
-                        InitDate = x.book.InitDate,
-                        PublishDate = x.book.PublishDate,
-                        WhoChanged = x.book.WhoChanged
-                    }).ToListAsync();
+                    (book, author) => new { book, author }).Where(x =>
+                      x.book.Name.ToLower() == metadata || x.author.Name.ToLower() == metadata ||
+                      x.author.Surname.ToLower() == metadata || x.author.MiddleName.ToLower() == metadata).Select(x =>
+                      new ReadModelBook
+                      {
+                          Id = x.book.Id,
+                          Name = x.book.Name,
+                          Author = x.author.FullName,
+                          BookStateId = x.book.BookStateId,
+                          InitDate = x.book.InitDate,
+                          PublishDate = x.book.PublishDate,
+                          WhoChanged = x.book.WhoChanged
+                      }).ToListAsync();
         }
 
         public async Task<bool> IsBookAuthorExistAsync(int authorId)
@@ -92,6 +92,22 @@ namespace GMCS_RestApi.Domain.Providers
         public async Task<Book> GetBookByIdAsync(int id)
         {
             return await _applicationContext.Books.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<ReadModelBook> GetBookReadModelByIdAsync(int bookId)
+        {
+            return await _applicationContext.Books.Where(x => x.Id == bookId).Join(_applicationContext.Authors, x => x.AuthorId, z => z.Id,
+                (book, author) => new { book, author }).Select(x =>
+                new ReadModelBook
+                {
+                    Id = x.book.Id,
+                    Name = x.book.Name,
+                    Author = x.author.FullName,
+                    BookStateId = x.book.BookStateId,
+                    InitDate = x.book.InitDate,
+                    PublishDate = x.book.PublishDate,
+                    WhoChanged = x.book.WhoChanged
+                }).FirstOrDefaultAsync();
         }
 
         public async Task<List<Book>> GetBooksByAuthorIdAsync(int authorId)

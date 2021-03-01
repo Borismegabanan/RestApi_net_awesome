@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace GMCS_RestApi.Domain.Common
 {
     public static class DisplayMessages
