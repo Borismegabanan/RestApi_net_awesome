@@ -45,7 +45,7 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// </summary>
         /// <param name="bookId"></param>
         /// <returns></returns>
-        Task<bool> IsBookExist(int bookId);
+        Task<bool> IsBookExistAsync(int bookId);
 
         /// <summary>
         /// Показывает есть ли запись в Бд об авторе книги оп идентификатору книгу

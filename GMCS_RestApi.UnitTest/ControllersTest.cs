@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using GMCS_RestAPI.Contracts.Request;
-using GMCS_RestAPI.Contracts.Response;
-using GMCS_RestAPI.Controllers;
+﻿using AutoMapper;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Contexts.Tools;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Providers;
+using GMCS_RestApi.Domain.Queries;
 using GMCS_RestApi.Domain.Services;
+using GMCS_RestAPI.Contracts.Request;
+using GMCS_RestAPI.Contracts.Response;
+using GMCS_RestAPI.Controllers;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace GMCS_RestApi.UnitTests
@@ -227,13 +229,31 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task CreateBookTest()
         {
+            var newBookCommand = new CreateBookCommand()
+            { AuthorId = 1, Name = Guid.NewGuid().ToString(), PublishDate = DateTime.Now };
 
+            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var actionResult = await controller.CreateBookAsync(newBookCommand);
+            var objectResult = (ObjectResult)actionResult.Result;
+            var model = (BookDisplayModel)objectResult.Value;
+
+            Assert.True(await TestContext.Books.AnyAsync(x => x.Name == newBookCommand.Name));
+            Assert.True(model.Name == newBookCommand.Name);
         }
 
         [Fact]
         public async Task RemoveBookByIdTest()
         {
+            var lastBook = await TestContext.Books.LastAsync();
+            var deleteBookCommand = new BookQuery() { Id = lastBook.Id };
 
+            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var actionResult = await controller.RemoveBookByIdAsync(deleteBookCommand.Id);
+            var objectResult = (ObjectResult)actionResult.Result;
+            var model = (BookDisplayModel)objectResult.Value;
+
+            Assert.False(await TestContext.Books.AnyAsync(x => x.Id == deleteBookCommand.Id));
+            Assert.True(lastBook.Id == model.Id && lastBook.Name == model.Name);
         }
 
     }

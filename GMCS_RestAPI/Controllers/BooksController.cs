@@ -155,7 +155,7 @@ namespace GMCS_RestAPI.Controllers
         [HttpDelete]
         public async Task<ActionResult<BookDisplayModel>> RemoveBookByIdAsync(int bookId)
         {
-            if (!await _booksProvider.IsBookExist(bookId))
+            if (!await _booksProvider.IsBookExistAsync(bookId))
             {
                 return NotFound(DisplayMessages.BookNotFoundErrorMessage);
             }
