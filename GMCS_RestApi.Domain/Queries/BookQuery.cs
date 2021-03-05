@@ -1,10 +1,10 @@
 ﻿namespace GMCS_RestApi.Domain.Queries
 {
-    public class AuthorQuery
+    public class BookQuery
     {
         public int Id;
 
-        protected bool Equals(AuthorQuery other)
+        protected bool Equals(BookQuery other)
         {
             return Id == other.Id;
         }

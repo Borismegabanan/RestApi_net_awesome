@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using GMCS_RestAPI.Contracts.Response;
+﻿using AutoMapper;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
-using GMCS_RestApi.Domain.Models;
+using GMCS_RestAPI.Contracts.Response;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using GMCS_RestApi.Domain.Queries;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -31,9 +32,9 @@ namespace GMCS_RestAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookModel>>> Get()
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetAllBooksAsync()
         {
-            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(await _booksProvider.GetAllBooksAsync()));
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(await _booksProvider.GetAllBooksAsync()));
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="name"></param>
         /// <returns></returns>
         [HttpGet("{name}")]
-        public async Task<ActionResult<IEnumerable<Book>>> Get(string name)
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetBooksByNameAsync(string name)
         {
             var books = await _booksProvider.GetBooksByNameAsync(name);
 
@@ -51,7 +52,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(books));
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(books));
         }
 
 
@@ -62,7 +63,7 @@ namespace GMCS_RestAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("Search/{metadata}")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetFromMetadata(string metadata)
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetBooksFromMetadataAsync(string metadata)
         {
             var books = await _booksProvider.GetBooksByMetadataAsync(metadata);
 
@@ -71,7 +72,7 @@ namespace GMCS_RestAPI.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(_mapper.Map<IEnumerable<BookModel>>(books));
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(books));
         }
 
         /// <summary>
@@ -80,45 +81,45 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("ChangeStateToInStock")]
-        public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
+        [Route("ChangeBookStateToInStockAsync")]
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToInStockAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
             if (book == null)
             {
                 return BadRequest();
             }
 
-            await _booksService.ChangeStateToInStockAsync(book);
+            await _booksService.ChangeStateToInStockAsync(book.Id);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(book));
         }
 
         /// <summary>
-        /// Изменение статуса книги на "В наличии"
+        /// Изменение статуса книги на "Продано"
         /// </summary>
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("ChangeStateToSold")]
-        public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
+        [Route("ChangeBookStateToSoldAsync")]
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToSoldAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
             if (book == null)
             {
                 return BadRequest();
             }
 
-            if (book.BookStateId != (int) BookStates.InStock)
+            if (book.BookStateId != (int)BookStates.InStock)
             {
                 return BadRequest(DisplayMessages.SoldBookBadRequestErrorMessage);
             }
 
-            await _booksService.ChangeStateToSoldAsync(book);
+            await _booksService.ChangeStateToSoldAsync(book.Id);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(book));
         }
 
         /// <summary>
@@ -127,9 +128,7 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="book"></param>
         /// <returns></returns>
         [HttpPost]
-#pragma warning disable 1998
-        public async Task<ActionResult<Book>> Post(Book book)
-#pragma warning restore 1998
+        public async Task<ActionResult<BookDisplayModel>> CreateBookAsync(CreateBookCommand book)
         {
             if (book == null)
             {
@@ -140,10 +139,12 @@ namespace GMCS_RestAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
+            //todo 2 test for create and view
+            var newBookId = await _booksService.CreateBookAsync(book);
 
-            await _booksService.CreateBookAsync(book);
+            var createdBook = await _booksProvider.GetBookReadModelByIdAsync(newBookId);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(createdBook));
         }
 
         /// <summary>
@@ -152,25 +153,23 @@ namespace GMCS_RestAPI.Controllers
         /// <param name="bookId"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult<Book>> Delete(int bookId)
+        public async Task<ActionResult<BookDisplayModel>> RemoveBookByIdAsync(int bookId)
         {
-            var book = await _booksProvider.GetBookByIdAsync(bookId);
-
-            if (book == null)
+            if (!await _booksProvider.IsBookExistAsync(bookId))
             {
                 return NotFound(DisplayMessages.BookNotFoundErrorMessage);
             }
 
-            var isAuthorFound = await _booksProvider.IsBookAuthorExistAsync(book.AuthorId);
-
-            if (!isAuthorFound)
+            if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
             {
                 return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
             }
+            //Todo automapper?
+            var bookQuery = new BookQuery() { Id = bookId };
 
-            await _booksService.RemoveBookAsync(book);
+            var removedBook = await _booksService.RemoveBookAsync(bookQuery);
 
-            return Ok(book);
+            return Ok(_mapper.Map<BookDisplayModel>(removedBook));
         }
     }
 }

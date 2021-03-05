@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Common;
+﻿using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {
@@ -18,8 +18,7 @@ namespace GMCS_RestApi.Domain.Interfaces
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        Task<IEnumerable<Book>> GetBooksByNameAsync(string name);
-
+        Task<IEnumerable<ReadModelBook>> GetBooksByNameAsync(string name);
         /// <summary>
         /// Получение книг по названию или Имени, или Фамилии или Отчеству автора
         /// </summary>
@@ -28,21 +27,35 @@ namespace GMCS_RestApi.Domain.Interfaces
         Task<IEnumerable<ReadModelBook>> GetBooksByMetadataAsync(string metadata);
 
         /// <summary>
-        /// Получение книги по индефикатору
+        /// Получение книги по индефикатору.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         Task<Book> GetBookByIdAsync(int id);
 
         /// <summary>
-        /// Показывает есть ли запись в Бд об авторе книги
+        /// получение полный данных о книге по индефикатору.
         /// </summary>
-        /// <param name="authorId"></param>
+        /// <param name="bookId"></param>
         /// <returns></returns>
-        Task<bool> IsBookAuthorExistAsync(int authorId);
-        
+        Task<ReadModelBook> GetBookReadModelByIdAsync(int bookId);
+
         /// <summary>
-        /// Получение книг об индефикатору автора
+        /// Показывает есть ли запись в Бд о книге.
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        Task<bool> IsBookExistAsync(int bookId);
+
+        /// <summary>
+        /// Показывает есть ли запись в Бд об авторе книги оп идентификатору книгу
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        Task<bool> IsBookAuthorExistAsync(int bookId);
+
+        /// <summary>
+        /// Получение книг об индефикатору автора.
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
