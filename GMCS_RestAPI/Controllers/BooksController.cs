@@ -118,7 +118,7 @@ namespace GMCS_RestAPI.Controllers
 
             if (book.BookStateId != (int)BookStates.InStock)
             {
-                return BadRequest(DisplayMessages.SoldBookBadRequestErrorMessage);
+                return BadRequest(DisplayMessages.Error.SoldBookBadRequest);
             }
 
             await _booksService.ChangeStateToSoldAsync(book.Id);
@@ -129,12 +129,12 @@ namespace GMCS_RestAPI.Controllers
         /// <summary>
         /// Создание книги
         /// </summary>
-        /// <param name="book"></param>
+        /// <param name="createBook"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<BookDisplayModel>> CreateBookAsync(CreateBookCommand book)
+        public async Task<ActionResult<BookDisplayModel>> CreateBookAsync(CreateBookRequest createBook)
         {
-            if (book == null)
+            if (createBook == null)
             {
                 return BadRequest();
             }
@@ -161,12 +161,12 @@ namespace GMCS_RestAPI.Controllers
         {
             if (!await _booksProvider.IsBookExistAsync(bookId))
             {
-                return NotFound(DisplayMessages.BookNotFoundErrorMessage);
+                return NotFound(DisplayMessages.Error.BookNotFound);
             }
 
             if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
             {
-                return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
+                return NotFound(DisplayMessages.Error.AuthorNotFound);
             }
             //Todo automapper?
             var bookQuery = new BookQuery() { Id = bookId };

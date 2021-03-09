@@ -90,7 +90,7 @@ namespace GMCS_RestAPI.Controllers
             var query = new AuthorQuery() { Id = id };
             if (!await _authorsProvider.IsAuthorExistAsync(query))
             {
-                return NotFound(DisplayMessages.AuthorNotFoundErrorMessage);
+                return NotFound(DisplayMessages.Error.AuthorNotFound);  
             }
 
             var removedAuthor = await _authorsService.RemoveAuthorAsync(query);
