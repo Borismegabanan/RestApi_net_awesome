@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Contexts.Tools;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
-using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Queries;
 using GMCS_RestApi.Domain.Services;
@@ -14,11 +12,15 @@ using GMCS_RestAPI.Controllers;
 using GMCS_RestAPI.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ServiceReference;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Book = GMCS_RestApi.Domain.Models.Book;
+using BookDisplayModel = GMCS_RestAPI.Contracts.Response.BookDisplayModel;
+using CreateBookRequest = GMCS_RestAPI.Contracts.Request.CreateBookRequest;
 
 namespace GMCS_RestApi.UnitTests
 {
@@ -32,6 +34,7 @@ namespace GMCS_RestApi.UnitTests
 
         private static readonly IBooksProvider BooksProvider = new BooksProvider(TestContext);
         private static readonly IBooksService BooksService = new BooksService(TestContext, Mapper);
+        private static readonly IBookStore BooksStoreService = new BookStoreClient();
 
         private static readonly IAuthorsProvider AuthorsProvider = new AuthorsProvider(TestContext);
         private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext), Mapper);
@@ -101,13 +104,20 @@ namespace GMCS_RestApi.UnitTests
             var newModel = new CreateAuthorRequest()
             { BirthDate = DateTime.Now, MiddleName = Guid.NewGuid().ToString(), Surname = "testSurname", Name = "testName" };
 
-            var actionResult = await controller.CreateAuthorAsync(Mapper.Map<CreateAuthorRequest>(newModel));
+            var actionResult = await controller.CreateAuthorAsync(newModel);
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (AuthorDisplayModel)objectResult.Value;
 
             Assert.NotNull(model);
             Assert.True(TestContext.Authors.Any(x => x.MiddleName == newModel.MiddleName));
         }
+
+        //[Fact]
+        //public async Task AddAuthor_ValidationErrorAsync()
+        //{
+
+        //}
+
         /// <summary>
         /// Тест на удачное удаление
         /// </summary>
@@ -127,7 +137,7 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task GetAllBooksTest()
         {
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             var actionResult = await controller.GetAllBooksAsync();
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -141,7 +151,7 @@ namespace GMCS_RestApi.UnitTests
             var firstName = (await TestContext.Books.FirstOrDefaultAsync()).Name;
             var partOfName = firstName.Remove(1);
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             var actionResult = await controller.GetBooksByNameAsync(partOfName);
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -156,7 +166,7 @@ namespace GMCS_RestApi.UnitTests
             var author = (await TestContext.Authors.FirstOrDefaultAsync());
             var authorMetadata = author.Name;
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             var actionResult = await controller.GetBooksFromMetadataAsync(authorMetadata);
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -189,7 +199,7 @@ namespace GMCS_RestApi.UnitTests
                 await TestContext.SaveChangesAsync();
             }
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             await controller.ChangeBookStateToInStockAsync(bookToTest.Id);
 
             Assert.True((await TestContext.Books.FirstOrDefaultAsync(x => x.Id == bookToTest.Id)).BookStateId ==
@@ -218,7 +228,7 @@ namespace GMCS_RestApi.UnitTests
                 await TestContext.SaveChangesAsync();
             }
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             await controller.ChangeBookStateToSoldAsync(bookToTest.Id);
 
 
@@ -229,10 +239,10 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task CreateBookTest()
         {
-            var newBookCommand = new CreateBookCommand()
+            var newBookCommand = new CreateBookRequest()
             { AuthorId = 1, Name = Guid.NewGuid().ToString(), PublishDate = DateTime.Now };
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             var actionResult = await controller.CreateBookAsync(newBookCommand);
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (BookDisplayModel)objectResult.Value;
@@ -247,12 +257,12 @@ namespace GMCS_RestApi.UnitTests
             var lastBook = await TestContext.Books.LastAsync();
             var deleteBookCommand = new BookQuery() { Id = lastBook.Id };
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
             var actionResult = await controller.RemoveBookByIdAsync(deleteBookCommand.Id);
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (BookDisplayModel)objectResult.Value;
 
-            Assert.False(await TestContext.Books.AnyAsync(x => x.Id == deleteBookCommand.Id));
+            Assert.False(await TestContext.Books.AnyAsync(x => x.Id == deleteBookCommand.Id)); // 
             Assert.True(lastBook.Id == model.Id && lastBook.Name == model.Name);
         }
 
