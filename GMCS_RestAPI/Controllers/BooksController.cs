@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
-using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
-using GMCS_RestAPI.Contracts.Response;
+using GMCS_RestApi.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
+using ServiceReference;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Queries;
+using BookDisplayModel = GMCS_RestAPI.Contracts.Response.BookDisplayModel;
+using CreateBookRequest = GMCS_RestAPI.Contracts.Request.CreateBookRequest;
 
 namespace GMCS_RestAPI.Controllers
 {
@@ -19,12 +20,15 @@ namespace GMCS_RestAPI.Controllers
         private readonly IBooksProvider _booksProvider;
         private readonly IBooksService _booksService;
         private readonly IMapper _mapper;
+        private readonly IBookStore _bookStoreService;
 
-        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper)
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStore bookStoreService)
         {
             this._booksProvider = booksProvider;
             this._booksService = booksService;
             this._mapper = mapper;
+            this._bookStoreService = bookStoreService;
+
         }
 
         /// <summary>
@@ -139,12 +143,12 @@ namespace GMCS_RestAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-            //todo 2 test for create and view
-            var newBookId = await _booksService.CreateBookAsync(book);
 
-            var createdBook = await _booksProvider.GetBookReadModelByIdAsync(newBookId);
+            var createBookRequest = _mapper.Map<CreateBookRequest1>(createBook);
 
-            return Ok(_mapper.Map<BookDisplayModel>(createdBook));
+            var newBook = await _bookStoreService.CreateBookAsync(createBookRequest);
+
+            return Ok(_mapper.Map<BookDisplayModel>(newBook));
         }
 
         /// <summary>
