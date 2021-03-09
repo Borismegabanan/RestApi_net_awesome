@@ -5,6 +5,7 @@ using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
 using GMCS_RestAPI.Middlewares;
+using GMCS_RestAPI.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -44,12 +45,18 @@ namespace GMCS_RestAPI
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();
 
-            services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile( new Mapping.MappingProfile())).CreateMapper());
+            services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile(new Mapping.MappingProfile())).CreateMapper());
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "GMCS_RestAPI", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GMCS_RestAPI", Version = "v1" });
             });
+
+            services.AddMvc(options => options.Filters.Add(typeof(ModelStateValidator)))
+                .AddFluentValidation(options =>
+                {
+                    options.RegisterValidatorsFromAssemblyContaining<Startup>();
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
