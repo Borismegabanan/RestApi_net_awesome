@@ -20,14 +20,14 @@ namespace GMCS_RestAPI.Controllers
         private readonly IBooksProvider _booksProvider;
         private readonly IBooksService _booksService;
         private readonly IMapper _mapper;
-        private readonly IBookStore _bookStoreService;
+        private readonly IBookStore _bookWcfService;
 
-        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStore bookStoreService)
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStore bookWcfService)
         {
             this._booksProvider = booksProvider;
             this._booksService = booksService;
             this._mapper = mapper;
-            this._bookStoreService = bookStoreService;
+            this._bookWcfService = bookWcfService;
 
         }
 
@@ -134,6 +134,7 @@ namespace GMCS_RestAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BookDisplayModel>> CreateBookAsync(CreateBookRequest createBook)
         {
+            //todo перенести в сервис?
             if (createBook == null)
             {
                 return BadRequest();
@@ -141,7 +142,7 @@ namespace GMCS_RestAPI.Controllers
 
             var createBookRequest = _mapper.Map<CreateBookRequest1>(createBook);
 
-            var newBook = await _bookStoreService.CreateBookAsync(createBookRequest);
+            var newBook = await _bookWcfService.CreateBookAsync(createBookRequest);
 
             return Ok(_mapper.Map<BookDisplayModel>(newBook));
         }
@@ -154,21 +155,23 @@ namespace GMCS_RestAPI.Controllers
         [HttpDelete]
         public async Task<ActionResult<BookDisplayModel>> RemoveBookByIdAsync(int bookId)
         {
-            if (!await _booksProvider.IsBookExistAsync(bookId))
-            {
-                return NotFound(DisplayMessages.Error.BookNotFound);
-            }
+            //todo перенести в сервис?
+            //if (!await _booksProvider.IsBookExistAsync(bookId))
+            //{
+            //    return NotFound(DisplayMessages.Error.BookNotFound);
+            //}
 
-            if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
-            {
-                return NotFound(DisplayMessages.Error.AuthorNotFound);
-            }
+            //if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
+            //{
+            //    return NotFound(DisplayMessages.Error.AuthorNotFound);
+            //}
             //Todo automapper?
             var bookQuery = new BookQuery() { Id = bookId };
 
-            var removedBook = await _booksService.RemoveBookAsync(bookQuery);
+            var removedBook = await _bookWcfService.RemoveBookAsync(_mapper.Map<RemoveBookRequest>(bookQuery));
+            var mapped = _mapper.Map<BookDisplayModel>(removedBook);
 
-            return Ok(_mapper.Map<BookDisplayModel>(removedBook));
+            return Ok(mapped);
         }
     }
 }
