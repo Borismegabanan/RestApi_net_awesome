@@ -61,7 +61,6 @@ namespace GMCS_RestApi.UnitTests
             Assert.Equal(await TestContext.Authors.CountAsync(), ((IEnumerable<AuthorDisplayModel>)objectResult.Value).Count());
         }
 
-
         /// <summary>
         /// Тест на не найденого пользователя
         /// </summary>
@@ -133,7 +132,10 @@ namespace GMCS_RestApi.UnitTests
 
         }
 
-
+        /// <summary>
+        /// Тест на получение всех книг
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task GetAllBooksTest()
         {
@@ -145,6 +147,10 @@ namespace GMCS_RestApi.UnitTests
             Assert.Equal(models.Count(), TestContext.Books.Count());
         }
 
+        /// <summary>
+        /// Тест получения книги по имени
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task GetBooksByNameTest()
         {
@@ -160,6 +166,10 @@ namespace GMCS_RestApi.UnitTests
             Assert.True(model != null && model.Name == firstName);
         }
 
+        /// <summary>
+        /// Тест получения книги по методанным.
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task GetBooksByMetadataTest()
         {
@@ -178,6 +188,10 @@ namespace GMCS_RestApi.UnitTests
             Assert.True(models.All(x => x.Author.Split(' ')[1] == authorMetadata));
         }
 
+        /// <summary>
+        /// Тест смены статуса книги
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task ChangeBookStateToInStockTest()
         {
@@ -207,6 +221,10 @@ namespace GMCS_RestApi.UnitTests
 
         }
 
+        /// <summary>
+        /// Тест смены статуса книги
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task ChangeBookStateToSoldTest()
         {
@@ -236,6 +254,10 @@ namespace GMCS_RestApi.UnitTests
                         (int)BookStates.Sold);
         }
 
+        /// <summary>
+        /// Тест создания книги.
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task CreateBookTest()
         {
@@ -251,6 +273,10 @@ namespace GMCS_RestApi.UnitTests
             Assert.True(model.Name == newBookCommand.Name);
         }
 
+        /// <summary>
+        /// Тест на удаление книги
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task RemoveBookByIdTest()
         {
@@ -262,7 +288,8 @@ namespace GMCS_RestApi.UnitTests
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (BookDisplayModel)objectResult.Value;
 
-            Assert.False(await TestContext.Books.AnyAsync(x => x.Id == deleteBookCommand.Id)); // 
+
+            Assert.False(await TestContext.Books.AnyAsync(x => x.Id == deleteBookCommand.Id)); //notEmpty
             Assert.True(lastBook.Id == model.Id && lastBook.Name == model.Name);
         }
 

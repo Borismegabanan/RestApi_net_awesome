@@ -1,14 +1,14 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Contexts;
-using GMCS_RestApi.Domain.Contexts.Tools;
+﻿using GMCS_RestApi.Domain.Contexts;
+using System;
 
 namespace GMCS_RestApi.UnitTests
 {
     public class TestBase
     {
-        private static readonly ApplicationContext _testContext = new TestDbContext();
-        public static readonly ApplicationContext TestContext = LazyInitializer.EnsureInitialized(ref _testContext);
+        private static readonly Lazy<ApplicationContext> _testContext =
+            new Lazy<ApplicationContext>(new TestDbContext());
+
+        public static readonly ApplicationContext TestContext = _testContext.Value;
 
         public TestBase()
         {
