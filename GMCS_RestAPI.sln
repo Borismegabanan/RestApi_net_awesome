@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GMCS_RestApi.Domain", "GMCS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GMCS_RestAPI.Contracts", "GMCS_RestAPI.Contracts\GMCS_RestAPI.Contracts.csproj", "{9B9F5200-641A-45F6-908C-4EA1D0C39DF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMCS_RestApi.UnitTests", "GMCS_RestApi.UnitTest\GMCS_RestApi.UnitTests.csproj", "{27F9B3FB-C875-44C5-A066-317FD7C430BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GMCS_RestApi.UnitTests", "GMCS_RestApi.UnitTest\GMCS_RestApi.UnitTests.csproj", "{27F9B3FB-C875-44C5-A066-317FD7C430BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMSC_RestAPI.Infrastructure", "GMSC_RestAPI.Infrastructure\GMSC_RestAPI.Infrastructure.csproj", "{AA38A8AB-DDB6-44CA-B4D5-CE22738065FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{27F9B3FB-C875-44C5-A066-317FD7C430BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27F9B3FB-C875-44C5-A066-317FD7C430BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27F9B3FB-C875-44C5-A066-317FD7C430BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA38A8AB-DDB6-44CA-B4D5-CE22738065FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA38A8AB-DDB6-44CA-B4D5-CE22738065FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA38A8AB-DDB6-44CA-B4D5-CE22738065FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA38A8AB-DDB6-44CA-B4D5-CE22738065FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

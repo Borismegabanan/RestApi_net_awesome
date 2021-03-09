@@ -5,7 +5,11 @@ using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
+using ServiceReference;
 using System;
+using Book = GMCS_RestApi.Domain.Models.Book;
+using BookDisplayModel = GMCS_RestAPI.Contracts.Response.BookDisplayModel;
+using CreateBookRequest = GMCS_RestAPI.Contracts.Request.CreateBookRequest;
 
 namespace GMCS_RestAPI.Mapping
 {
@@ -20,6 +24,7 @@ namespace GMCS_RestAPI.Mapping
 
             CreateMap<ReadModelBook, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
             CreateMap<Book, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
+            CreateMap<CreateBookCommand, CreateBookRequest>().ReverseMap();
             CreateMap<CreateBookCommand, Book>().BeforeMap((command, book) =>
                 {
                     book.InitDate = DateTime.Now;
@@ -28,6 +33,12 @@ namespace GMCS_RestAPI.Mapping
                 })
                 .ReverseMap();
 
+            //TODO: Check It
+            CreateMap<CreateBookRequest, ServiceReference.CreateBookRequest>().ReverseMap();
+            CreateMap<CreateBookRequest, CreateBookRequest1>().ForMember(e => e.newBook, opt => opt.MapFrom(c => c)).ReverseMap();
+            CreateMap<BookDisplayModel, ServiceReference.BookDisplayModel>().ReverseMap();
+            CreateMap<BookDisplayModel, CreateBookResponse>()
+                .ForMember(e => e.CreateBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
         }
     }
 }

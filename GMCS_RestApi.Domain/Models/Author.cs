@@ -1,12 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using GMCS_RestApi.Domain.Commands;
 
 namespace GMCS_RestApi.Domain.Models
 {
     public class Author
     {
-        [Key] 
+        [Key]
         public int Id { get; set; }
 
         public string Name { get; set; }

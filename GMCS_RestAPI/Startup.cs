@@ -1,16 +1,19 @@
 using AutoMapper;
+using FluentValidation.AspNetCore;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
+using GMCS_RestAPI.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
-using GMCS_RestAPI.Middlewares;
+using ServiceReference;
+using System.ServiceModel;
 
 namespace GMCS_RestAPI
 {
@@ -34,6 +37,9 @@ namespace GMCS_RestAPI
 
             services.AddScoped<IBooksProvider, BooksProvider>();
             services.AddScoped<IBooksService, BooksService>();
+
+            services.AddTransient<IBookStore>(s => new BookStoreClient(new BasicHttpBinding(),
+                new EndpointAddress(Configuration.GetConnectionString("ServiceConnection"))));
 
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();
