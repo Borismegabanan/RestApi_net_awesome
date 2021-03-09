@@ -139,11 +139,6 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest();
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var createBookRequest = _mapper.Map<CreateBookRequest1>(createBook);
 
             var newBook = await _bookStoreService.CreateBookAsync(createBookRequest);

@@ -69,11 +69,6 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest();
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             await _authorsService.CreateAuthorAsync(_mapper.Map<CreateAuthorCommand>(createAuthor));
 
             return Ok(_mapper.Map<AuthorDisplayModel>(createAuthor));
@@ -90,7 +85,7 @@ namespace GMCS_RestAPI.Controllers
             var query = new AuthorQuery() { Id = id };
             if (!await _authorsProvider.IsAuthorExistAsync(query))
             {
-                return NotFound(DisplayMessages.Error.AuthorNotFound);  
+                return NotFound(DisplayMessages.Error.AuthorNotFound);
             }
 
             var removedAuthor = await _authorsService.RemoveAuthorAsync(query);
