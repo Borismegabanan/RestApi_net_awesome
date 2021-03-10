@@ -11,4 +11,4 @@ Basic realization of Book Store.
 
 Ниже отметил какому заданию какой метод соответствует. На всякий случай для тестирования добавил ещё методов для получения всех значений
 
-![alt text](https://github.com/Borismegabanan/GMCS_RestApi/blob/Develop/Pictures/methodsScreenShot)
+![alt text](https://github.com/Borismegabanan/GMCS_RestApi/blob/1.0.0/OnionArchitecture/Pictures/methodsScreenShot.png)
