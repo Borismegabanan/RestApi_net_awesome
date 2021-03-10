@@ -41,7 +41,7 @@ namespace GMCS_RestAPI.Mapping
                 .ForMember(e => e.CreateBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
 
             CreateMap<BookQuery, ServiceReference.RemoveBookRequest>().ReverseMap();
-            CreateMap<Book, ServiceReference.RemoveBookResponse>()
+            CreateMap<BookDisplayModel, ServiceReference.RemoveBookResponse>()
                 .ForMember(e => e.RemoveBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
             CreateMap<Book, ServiceReference.Book>().ReverseMap();
             CreateMap<ServiceReference.Book, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
