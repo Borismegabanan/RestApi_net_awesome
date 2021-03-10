@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Models;
+using GMCS_RestApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GMCS_RestAPI.Database
+namespace GMCS_RestApi.Domain.Contexts
 {
-	public sealed class ApplicationContext : DbContext
+	public class ApplicationContext : DbContext
 	{
 		private readonly StreamWriter _logStream = new StreamWriter("log", true);
 
@@ -13,17 +13,21 @@ namespace GMCS_RestAPI.Database
 
 		public DbSet<Book> Books { get; set; }
 
-		public DbSet<BookState> BookStates { get; set; }
+		public DbSet<BookStateDbRecord> BookStates { get; set; }
+
+		public ApplicationContext()
+		{
+		}
 
 		public ApplicationContext(DbContextOptions<ApplicationContext> options)
 			: base(options)
 		{
-			Database.EnsureCreated();
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.LogTo(_logStream.WriteLine);
+		
 		}
 		public override void Dispose()
 		{

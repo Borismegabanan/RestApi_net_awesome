@@ -1,212 +1,177 @@
-﻿using System;
+﻿using AutoMapper;
+using GMCS_RestApi.Domain.Common;
+using GMCS_RestApi.Domain.Enums;
+using GMCS_RestApi.Domain.Interfaces;
+using GMCS_RestApi.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
+using ServiceReference;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
-using GMCS_RestAPI.Classes;
-using GMCS_RestAPI.Database;
-using GMCS_RestAPI.Models;
-using Microsoft.EntityFrameworkCore;
+using BookDisplayModel = GMCS_RestAPI.Contracts.Response.BookDisplayModel;
+using CreateBookRequest = GMCS_RestAPI.Contracts.Request.CreateBookRequest;
 
 namespace GMCS_RestAPI.Controllers
 {
-	[ApiController]
-	[Route("[controller]")]
-	public class BooksController : ControllerBase
-	{
-		private ApplicationContext _context;
+    [ApiController]
+    [Route("[controller]")]
+    public class BooksController : ControllerBase
+    {
+        private readonly IBooksProvider _booksProvider;
+        private readonly IBooksService _booksService;
+        private readonly IMapper _mapper;
+        private readonly IBookStore _bookWcfService;
 
-		public BooksController(ApplicationContext context)
-		{
-			_context = context;
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStore bookWcfService)
+        {
+            this._booksProvider = booksProvider;
+            this._booksService = booksService;
+            this._mapper = mapper;
+            this._bookWcfService = bookWcfService;
 
-			СStatic.InitDataBase(_context);
-		}
+        }
 
-		/// <summary>
-		/// Получение списка всех книг с полным именем автора.
-		/// </summary>
-		/// <returns></returns>
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CBook>>> Get()
-		{
-			return await _context.Books.Join(_context.BookStates, x=>x.BookStateId, z=>z.Id,(book,state) => new {book,state})
-				.Join(
-				_context.Authors,
-				x => x.book.AuthorId,
-				z => z.Id,
-				(record, author) => new CBook
-				{
-					Id = record.book.Id,
-					Name = record.book.Name,
-					Author = author.FullName,
-					BookState = record.state.Name,
-					InitDate = record.book.InitDate,
-					PublishDate = record.book.PublishDate,
-					WhoChanged = record.book.WhoChanged
-				}).ToListAsync();
-		}
+        /// <summary>
+        /// Получение списка всех книг с полным именем автора.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetAllBooksAsync()
+        {
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(await _booksProvider.GetAllBooksAsync()));
+        }
 
-		/// <summary>
-		/// Получение книг по названию.
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[HttpGet("{name}")]
-		public async Task<ActionResult<IEnumerable<Book>>> Get(string name)
-		{
-			var books = await _context.Books.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToListAsync();
-			
-			if (!books.Any())
-			{
-				return NotFound();
-			}
+        /// <summary>
+        /// Получение книг по названию.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet("{name}")]
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetBooksByNameAsync(string name)
+        {
+            var books = await _booksProvider.GetBooksByNameAsync(name);
 
-			return new ObjectResult(books);
-		}
+            if (!books.Any())
+            {
+                return NotFound();
+            }
+
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(books));
+        }
 
 
-		/// <summary>
-		/// Получение книг по названию или Имени, или Фамилии или Отчеству автора
-		/// </summary>
-		/// <param name="metadata"></param>
-		/// <returns></returns>
-		[HttpGet]
-		[Route("Search/{metadata}")]
-		public async Task<ActionResult<IEnumerable<Book>>> GetFromMetadata(string metadata)
-		{
-			metadata = metadata.ToLower();
-			var books = await _context.Books
-				.Join(_context.Authors, x => x.AuthorId, z => z.Id,
-					(book, author) => new {book, author}).Where(x =>
-					x.book.Name.ToLower() == metadata || x.author.Name.ToLower() == metadata ||
-					x.author.Surname.ToLower() == metadata || x.author.MiddleName.ToLower() == metadata).Select(x =>
-					new CBook
-					{
-						Id = x.book.Id,
-						Name = x.book.Name,
-						Author = x.author.FullName,
-						InitDate = x.book.InitDate,
-						PublishDate = x.book.PublishDate,
-						WhoChanged = x.book.WhoChanged
-					}).ToListAsync();
+        /// <summary>
+        /// Получение книг по названию или Имени, или Фамилии или Отчеству автора
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Search/{metadata}")]
+        public async Task<ActionResult<IEnumerable<BookDisplayModel>>> GetBooksFromMetadataAsync(string metadata)
+        {
+            var books = await _booksProvider.GetBooksByMetadataAsync(metadata);
 
-			if (!books.Any())
-			{
-				return NotFound();
-			}
+            if (!books.Any())
+            {
+                return NotFound();
+            }
 
-			return new ObjectResult(books);
-		}
+            return new ObjectResult(_mapper.Map<IEnumerable<BookDisplayModel>>(books));
+        }
 
-		/// <summary>
-		/// Изменение статуса книги на "В наличии"
-		/// </summary>
-		/// <param name="bookId"></param>
-		/// <returns></returns>
-		[HttpPut]
-		[Route("ChangeStateToInStock")]
-		public async Task<ActionResult<Book>> ChangeStateToInStock(int bookId)
-		{
-			var book = _context.Books.First(x => x.Id == bookId);
+        /// <summary>
+        /// Изменение статуса книги на "В наличии"
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("ChangeBookStateToInStockAsync")]
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToInStockAsync(int bookId)
+        {
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
-			if (book == null)
-			{
-				return BadRequest();
-			}
+            if (book == null)
+            {
+                return BadRequest();
+            }
 
-			book.BookStateId = 2;
+            await _booksService.ChangeStateToInStockAsync(book.Id);
 
-			book.WhoChanged = Environment.UserName;
+            return Ok(_mapper.Map<BookDisplayModel>(book));
+        }
 
-			_context.Update(book);
+        /// <summary>
+        /// Изменение статуса книги на "Продано"
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("ChangeBookStateToSoldAsync")]
+        public async Task<ActionResult<BookDisplayModel>> ChangeBookStateToSoldAsync(int bookId)
+        {
+            var book = await _booksProvider.GetBookReadModelByIdAsync(bookId);
 
-			await _context.SaveChangesAsync();
+            if (book == null)
+            {
+                return BadRequest();
+            }
 
-			return Ok(book);
-		}
+            if (book.BookStateId != (int)BookStates.InStock)
+            {
+                return BadRequest(DisplayMessages.Error.SoldBookBadRequest);
+            }
 
-		/// <summary>
-		/// Изменение статуса книги на "В наличии"
-		/// </summary>
-		/// <param name="bookId"></param>
-		/// <returns></returns>
-		[HttpPut]
-		[Route("ChangeStateToSold")]
-		public async Task<ActionResult<Book>> ChangeStateToSold(int bookId)
-		{
-			var book = _context.Books.First(x => x.Id == bookId);
+            await _booksService.ChangeStateToSoldAsync(book.Id);
 
-			if (book == null)
-			{
-				return BadRequest();
-			}
+            return Ok(_mapper.Map<BookDisplayModel>(book));
+        }
 
-			if (book.Id != 2)
-			{
-				return BadRequest("Данной книги нет в налчии");
-			}
+        /// <summary>
+        /// Создание книги
+        /// </summary>
+        /// <param name="createBook"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult<BookDisplayModel>> CreateBookAsync(CreateBookRequest createBook)
+        {
+            //todo перенести в сервис?
+            if (createBook == null)
+            {
+                return BadRequest();
+            }
 
-			book.BookStateId = 1;
+            var createBookRequest = _mapper.Map<CreateBookRequest1>(createBook);
 
-			book.WhoChanged = Environment.UserName;
+            var newBook = await _bookWcfService.CreateBookAsync(createBookRequest);
 
-			_context.Update(book);
+            return Ok(_mapper.Map<BookDisplayModel>(newBook));
+        }
 
-			await _context.SaveChangesAsync();
+        /// <summary>
+        /// Удаление книги
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        public async Task<ActionResult<BookDisplayModel>> RemoveBookByIdAsync(int bookId)
+        {
+            //todo перенести в сервис?
+            //if (!await _booksProvider.IsBookExistAsync(bookId))
+            //{
+            //    return NotFound(DisplayMessages.Error.BookNotFound);
+            //}
 
-			return Ok(book);
-		}
+            //if (!await _booksProvider.IsBookAuthorExistAsync(bookId))
+            //{
+            //    return NotFound(DisplayMessages.Error.AuthorNotFound);
+            //}
+            //Todo automapper?
+            var bookQuery = new BookQuery() { Id = bookId };
 
-		/// <summary>
-		/// Создание книги
-		/// </summary>
-		/// <param name="book"></param>
-		/// <returns></returns>
-		[HttpPost]
-		public async Task<ActionResult<Book>> Post(Book book)
-		{
-			if (book == null)
-			{
-				return BadRequest();
-			}
+            var removedBook = await _bookWcfService.RemoveBookAsync(_mapper.Map<RemoveBookRequest>(bookQuery));
+            var mapped = _mapper.Map<BookDisplayModel>(removedBook);
 
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
-
-			_context.Books.Add(book);
-			await _context.SaveChangesAsync();
-			return Ok(book);
-		}
-
-		/// <summary>
-		/// Удаление книги
-		/// </summary>
-		/// <param name="bookId"></param>
-		/// <returns></returns>
-		[HttpDelete]
-		public async Task<ActionResult<Book>> Delete(int bookId)
-		{
-			var book = _context.Books.FirstOrDefault(x => x.Id == bookId);
-			if (book == null)
-			{
-				return NotFound("не найден автор");
-			}
-
-			var isAuthorFound = _context.Authors.Any(x => x.Id == book.AuthorId);
-
-			if (!isAuthorFound)
-			{
-				return NotFound("не найдена книга");
-			}
-
-			_context.Books.Remove(book);
-
-			await _context.SaveChangesAsync();
-			return Ok(book);
-		}
-	}
+            return Ok(mapped);
+        }
+    }
 }
