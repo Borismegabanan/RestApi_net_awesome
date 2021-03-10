@@ -3,6 +3,7 @@ using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Models;
+using GMCS_RestApi.Domain.Queries;
 using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
 using ServiceReference;
@@ -33,12 +34,17 @@ namespace GMCS_RestAPI.Mapping
                 })
                 .ReverseMap();
 
-            //TODO: Check It
             CreateMap<CreateBookRequest, ServiceReference.CreateBookRequest>().ReverseMap();
             CreateMap<CreateBookRequest, CreateBookRequest1>().ForMember(e => e.newBook, opt => opt.MapFrom(c => c)).ReverseMap();
             CreateMap<BookDisplayModel, ServiceReference.BookDisplayModel>().ReverseMap();
             CreateMap<BookDisplayModel, CreateBookResponse>()
                 .ForMember(e => e.CreateBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
+
+            CreateMap<BookQuery, ServiceReference.RemoveBookRequest>().ReverseMap();
+            CreateMap<BookDisplayModel, ServiceReference.RemoveBookResponse>()
+                .ForMember(e => e.RemoveBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
+            CreateMap<Book, ServiceReference.Book>().ReverseMap();
+            CreateMap<ServiceReference.Book, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
         }
     }
 }
