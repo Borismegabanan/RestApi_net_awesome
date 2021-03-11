@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
-using GMCS_RestApi.Domain.Database.Tools;
+using GMCS_RestApi.Domain.Contexts.Tools;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
