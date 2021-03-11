@@ -6,6 +6,7 @@ using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
 using GMCS_RestAPI.Middlewares;
 using GMCS_RestAPI.Validators;
+using GMSC_RestAPI.Infrastructure.ClientBehaviors;
 using GMSC_RestAPI.Infrastructure.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ServiceReference;
 using System;
@@ -43,7 +45,14 @@ namespace GMCS_RestAPI
             services.AddScoped<IBooksProvider, BooksProvider>();
             services.AddScoped<IBooksService, BooksService>();
 
-            services.AddTransient<IBookStore>(s => new BookStoreClient(new BasicHttpBinding(), new EndpointAddress(Configuration.GetConnectionString("ServiceConnection"))));
+            services.AddTransient<IBookStore>(serviceProvider =>
+            {
+                var client = new BookStoreClient(new BasicHttpBinding(),
+                        new EndpointAddress(Configuration.GetConnectionString("ServiceConnection")));
+                client.Endpoint.EndpointBehaviors.Add(new SoapBehavior(new ClientInspector(serviceProvider.GetRequiredService<ILoggerFactory>())));
+
+                return client;
+            });
 
             services.AddScoped<IBookStoreRepository, BookStoreRepository>();
 
