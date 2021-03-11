@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Common;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
-using ServiceReference;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,9 +20,9 @@ namespace GMCS_RestAPI.Controllers
         private readonly IBooksProvider _booksProvider;
         private readonly IBooksService _booksService;
         private readonly IMapper _mapper;
-        private readonly IBookStore _bookWcfService;
+        private readonly IBookStoreRepository _bookWcfService;
 
-        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStore bookWcfService)
+        public BooksController(IBooksProvider booksProvider, IBooksService booksService, IMapper mapper, IBookStoreRepository bookWcfService)
         {
             this._booksProvider = booksProvider;
             this._booksService = booksService;
@@ -140,7 +140,7 @@ namespace GMCS_RestAPI.Controllers
                 return BadRequest();
             }
 
-            var createBookRequest = _mapper.Map<CreateBookRequest1>(createBook);
+            var createBookRequest = _mapper.Map<CreateBookServiceRequest>(createBook);
 
             var newBook = await _bookWcfService.CreateBookAsync(createBookRequest);
 
@@ -168,7 +168,7 @@ namespace GMCS_RestAPI.Controllers
             //Todo automapper?
             var bookQuery = new BookQuery() { Id = bookId };
 
-            var removedBook = await _bookWcfService.RemoveBookAsync(_mapper.Map<RemoveBookRequest>(bookQuery));
+            var removedBook = await _bookWcfService.RemoveBookAsync(_mapper.Map<RemoveBookServiceRequest>(bookQuery));
             var mapped = _mapper.Map<BookDisplayModel>(removedBook);
 
             return Ok(mapped);

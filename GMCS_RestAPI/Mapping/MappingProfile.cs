@@ -34,17 +34,22 @@ namespace GMCS_RestAPI.Mapping
                 })
                 .ReverseMap();
 
-            CreateMap<CreateBookRequest, ServiceReference.CreateBookRequest>().ReverseMap();
-            CreateMap<CreateBookRequest, CreateBookRequest1>().ForMember(e => e.newBook, opt => opt.MapFrom(c => c)).ReverseMap();
-            CreateMap<BookDisplayModel, ServiceReference.BookDisplayModel>().ReverseMap();
-            CreateMap<BookDisplayModel, CreateBookResponse>()
-                .ForMember(e => e.CreateBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
 
-            CreateMap<BookQuery, ServiceReference.RemoveBookRequest>().ReverseMap();
-            CreateMap<BookDisplayModel, ServiceReference.RemoveBookResponse>()
-                .ForMember(e => e.RemoveBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
-            CreateMap<Book, ServiceReference.Book>().ReverseMap();
-            CreateMap<ServiceReference.Book, BookDisplayModel>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
+            CreateMap<CreateBookServiceRequest, CreateBookRequest>().ReverseMap();
+            CreateMap<BookDisplayServiceResponse, BookDisplayModel>().ReverseMap();
+            CreateMap<RemoveBookServiceRequest, BookQuery>().ReverseMap();
+
+            //WCFService
+            CreateMap<CreateBookServiceRequest, CreateBookRequest1>().ForMember(request => request.newBook, opt => opt.MapFrom(c => c)).ReverseMap();
+            CreateMap<CreateBookServiceRequest, ServiceReference.CreateBookRequest>().ReverseMap();
+
+            CreateMap<BookDisplayServiceResponse, CreateBookResponse>()
+                .ForMember(res => res.CreateBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
+            CreateMap<BookDisplayServiceResponse, ServiceReference.BookDisplayModel>().ReverseMap();
+            CreateMap<RemoveBookServiceRequest, RemoveBookRequest>().ReverseMap();
+            CreateMap<BookDisplayServiceResponse, RemoveBookResponse>()
+                .ForMember(res => res.RemoveBookResult, opt => opt.MapFrom(c => c)).ReverseMap();
+            CreateMap<ServiceReference.Book, BookDisplayServiceResponse>().ForMember(e => e.BookState, opt => opt.MapFrom(c => Enum.GetName(typeof(BookStates), c.BookStateId))).ReverseMap();
         }
     }
 }

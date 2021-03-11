@@ -4,7 +4,9 @@ using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
 using GMCS_RestApi.Domain.Services;
+using GMCS_RestAPI.Middlewares;
 using GMCS_RestAPI.Validators;
+using GMSC_RestAPI.Infrastructure.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.ServiceModel;
-using GMCS_RestAPI.Middlewares;
 
 namespace GMCS_RestAPI
 {
@@ -42,8 +43,9 @@ namespace GMCS_RestAPI
             services.AddScoped<IBooksProvider, BooksProvider>();
             services.AddScoped<IBooksService, BooksService>();
 
-            services.AddTransient<IBookStore>(s => new BookStoreClient(new BasicHttpBinding(),
-                new EndpointAddress(Configuration.GetConnectionString("ServiceConnection"))));
+            services.AddTransient<IBookStore>(s => new BookStoreClient(new BasicHttpBinding(), new EndpointAddress(Configuration.GetConnectionString("ServiceConnection"))));
+
+            services.AddScoped<IBookStoreRepository, BookStoreRepository>();
 
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();

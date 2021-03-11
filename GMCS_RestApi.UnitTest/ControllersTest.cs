@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using GMCS_RestApi.Domain.Contexts;
-using GMCS_RestApi.Domain.Contexts.Tools;
+using GMCS_RestApi.Domain.Database.Tools;
 using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Providers;
@@ -10,6 +10,7 @@ using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestAPI.Controllers;
 using GMCS_RestAPI.Mapping;
+using GMSC_RestAPI.Infrastructure.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceReference;
@@ -29,12 +30,13 @@ namespace GMCS_RestApi.UnitTests
 
         private static readonly IMapper Mapper =
             new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
+        private static readonly IBookStore BookStore = new BookStoreClient();
 
         private static readonly ApplicationContext TestContext = new TestDbContext();
 
         private static readonly IBooksProvider BooksProvider = new BooksProvider(TestContext);
         private static readonly IBooksService BooksService = new BooksService(TestContext, Mapper);
-        private static readonly IBookStore BooksStoreService = new BookStoreClient();
+        private static readonly IBookStoreRepository BooksStoreService = new BookStoreRepository(Mapper, BookStore);
 
         private static readonly IAuthorsProvider AuthorsProvider = new AuthorsProvider(TestContext);
         private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext), Mapper);
