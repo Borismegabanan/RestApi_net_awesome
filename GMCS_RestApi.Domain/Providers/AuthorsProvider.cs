@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Contexts;
+﻿using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Queries;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Providers
 {
@@ -17,7 +17,7 @@ namespace GMCS_RestApi.Domain.Providers
         {
             _applicationContext = applicationContext;
         }
-        
+
         public async Task<IEnumerable<Author>> GetAllAuthorsAsync(string name = null)
         {
             if (name == null)

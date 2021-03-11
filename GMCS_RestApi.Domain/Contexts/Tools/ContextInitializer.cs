@@ -1,6 +1,6 @@
-﻿using System;
+﻿using GMCS_RestApi.Domain.Models;
+using System;
 using System.Linq;
-using GMCS_RestApi.Domain.Models;
 
 namespace GMCS_RestApi.Domain.Contexts.Tools
 {

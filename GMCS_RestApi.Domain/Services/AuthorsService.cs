@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Queries;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Services
 {
