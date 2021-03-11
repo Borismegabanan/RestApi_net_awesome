@@ -1,8 +1,7 @@
 ﻿using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Models;
-using System.Threading.Tasks;
-using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestApi.Domain.Queries;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {

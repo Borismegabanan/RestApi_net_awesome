@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GMCS_RestApi.Domain.Commands;
 using GMCS_RestApi.Domain.Contexts;
 using GMCS_RestApi.Domain.Contexts.Tools;
 using GMCS_RestApi.Domain.Enums;
@@ -10,10 +11,9 @@ using GMCS_RestAPI.Contracts.Request;
 using GMCS_RestAPI.Contracts.Response;
 using GMCS_RestAPI.Controllers;
 using GMCS_RestAPI.Mapping;
-using GMSC_RestAPI.Infrastructure.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ServiceReference;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,13 +30,11 @@ namespace GMCS_RestApi.UnitTests
 
         private static readonly IMapper Mapper =
             new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper();
-        private static readonly IBookStore BookStore = new BookStoreClient();
-
         private static readonly ApplicationContext TestContext = new TestDbContext();
 
         private static readonly IBooksProvider BooksProvider = new BooksProvider(TestContext);
         private static readonly IBooksService BooksService = new BooksService(TestContext, Mapper);
-        private static readonly IBookStoreRepository BooksStoreService = new BookStoreRepository(Mapper, BookStore);
+        private static readonly Mock<IBookStoreRepository> BooksStoreServiceMock = new Mock<IBookStoreRepository>();
 
         private static readonly IAuthorsProvider AuthorsProvider = new AuthorsProvider(TestContext);
         private static readonly IAuthorsService AuthorsService = new AuthorsService(TestContext, new BooksProvider(TestContext), Mapper);
@@ -141,7 +139,7 @@ namespace GMCS_RestApi.UnitTests
         [Fact]
         public async Task GetAllBooksTest()
         {
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             var actionResult = await controller.GetAllBooksAsync();
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -159,7 +157,7 @@ namespace GMCS_RestApi.UnitTests
             var firstName = (await TestContext.Books.FirstOrDefaultAsync()).Name;
             var partOfName = firstName.Remove(1);
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             var actionResult = await controller.GetBooksByNameAsync(partOfName);
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -178,7 +176,7 @@ namespace GMCS_RestApi.UnitTests
             var author = (await TestContext.Authors.FirstOrDefaultAsync());
             var authorMetadata = author.Name;
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             var actionResult = await controller.GetBooksFromMetadataAsync(authorMetadata);
             var objectResult = (ObjectResult)actionResult.Result;
             var models = (IEnumerable<BookDisplayModel>)objectResult.Value;
@@ -215,7 +213,7 @@ namespace GMCS_RestApi.UnitTests
                 await TestContext.SaveChangesAsync();
             }
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             await controller.ChangeBookStateToInStockAsync(bookToTest.Id);
 
             Assert.True((await TestContext.Books.FirstOrDefaultAsync(x => x.Id == bookToTest.Id)).BookStateId ==
@@ -248,7 +246,7 @@ namespace GMCS_RestApi.UnitTests
                 await TestContext.SaveChangesAsync();
             }
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             await controller.ChangeBookStateToSoldAsync(bookToTest.Id);
 
 
@@ -266,12 +264,23 @@ namespace GMCS_RestApi.UnitTests
             var newBookCommand = new CreateBookRequest()
             { AuthorId = 1, Name = Guid.NewGuid().ToString(), PublishDate = DateTime.Now };
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+#pragma warning disable 1998
+            async Task<BookDisplayServiceResponse> ValueFunction()
+#pragma warning restore 1998
+            {
+                return new BookDisplayServiceResponse() { Name = newBookCommand.Name };
+            }
+
+
+            BooksStoreServiceMock.Setup(x => x.CreateBookAsync(Mapper.Map<CreateBookServiceRequest>(newBookCommand)))
+                .Returns(ValueFunction);
+
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             var actionResult = await controller.CreateBookAsync(newBookCommand);
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (BookDisplayModel)objectResult.Value;
 
-            Assert.True(await TestContext.Books.AnyAsync(x => x.Name == newBookCommand.Name));
+            //Assert.True(await TestContext.Books.AnyAsync(x => x.Name == newBookCommand.Name));
             Assert.True(model.Name == newBookCommand.Name);
         }
 
@@ -285,7 +294,7 @@ namespace GMCS_RestApi.UnitTests
             var lastBook = await TestContext.Books.LastAsync();
             var deleteBookCommand = new BookQuery() { Id = lastBook.Id };
 
-            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreService);
+            var controller = new BooksController(BooksProvider, BooksService, Mapper, BooksStoreServiceMock.Object);
             var actionResult = await controller.RemoveBookByIdAsync(deleteBookCommand.Id);
             var objectResult = (ObjectResult)actionResult.Result;
             var model = (BookDisplayModel)objectResult.Value;

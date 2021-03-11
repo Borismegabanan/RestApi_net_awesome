@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using GMCS_RestApi.Domain.Models;
+﻿using GMCS_RestApi.Domain.Models;
 using GMCS_RestApi.Domain.Queries;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GMCS_RestApi.Domain.Interfaces
 {

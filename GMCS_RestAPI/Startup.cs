@@ -36,7 +36,7 @@ namespace GMCS_RestAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = Configuration.GetConnectionString("DefaultConnection");
+            var connection = Configuration.GetConnectionString("SomeeDbConnection");
 
             services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
 
