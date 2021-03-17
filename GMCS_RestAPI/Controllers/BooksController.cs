@@ -5,8 +5,10 @@ using GMCS_RestApi.Domain.Enums;
 using GMCS_RestApi.Domain.Interfaces;
 using GMCS_RestApi.Domain.Queries;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQ.Client;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BookDisplayModel = GMCS_RestAPI.Contracts.Response.BookDisplayModel;
 using CreateBookRequest = GMCS_RestAPI.Contracts.Request.CreateBookRequest;
@@ -145,6 +147,35 @@ namespace GMCS_RestAPI.Controllers
             var newBook = await _bookWcfService.CreateBookAsync(createBookRequest);
 
             return Ok(_mapper.Map<BookDisplayModel>(newBook));
+        }
+
+        /// <summary>
+        /// Тест : отправка сообщения на сервис
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("TestSendMessage")]
+        public ActionResult SendMessageToQueue(string message)
+        {
+            var factory = new ConnectionFactory() { HostName = "localhost" };
+            using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(queue: "TestWcfPost",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                var body = Encoding.UTF8.GetBytes(message);
+
+                channel.BasicPublish(exchange: "",
+                    routingKey: "TestWcfPost",
+                    basicProperties: null,
+                    body: body);
+            }
+
+            return Ok(message);
         }
 
         /// <summary>
