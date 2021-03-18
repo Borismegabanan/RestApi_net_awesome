@@ -58,6 +58,7 @@ namespace GMCS_RestAPI
 
             services.AddScoped<IAuthorsProvider, AuthorsProvider>();
             services.AddScoped<IAuthorsService, AuthorsService>();
+            services.AddScoped<IRabbitMessagesProvider, RabbitMessagesProvider>();
 
             services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile(new Mapping.MappingProfile())).CreateMapper());
 

@@ -150,35 +150,6 @@ namespace GMCS_RestAPI.Controllers
         }
 
         /// <summary>
-        /// Тест : отправка сообщения на сервис
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("TestSendMessage")]
-        public ActionResult SendMessageToQueue(string message)
-        {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: "TestWcfPost",
-                    durable: false,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
-
-                var body = Encoding.UTF8.GetBytes(message);
-
-                channel.BasicPublish(exchange: "",
-                    routingKey: "TestWcfPost",
-                    basicProperties: null,
-                    body: body);
-            }
-
-            return Ok(message);
-        }
-
-        /// <summary>
         /// Удаление книги
         /// </summary>
         /// <param name="bookId"></param>

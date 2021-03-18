@@ -4,6 +4,9 @@ using System.ServiceModel.Dispatcher;
 
 namespace GMSC_RestAPI.Infrastructure.ClientBehaviors
 {
+    /// <summary>
+    /// Кастомное поведение для клиента сервисаю
+    /// </summary>
     public class SoapBehavior : IEndpointBehavior
     {
         public IClientMessageInspector MessageInspector { get; }
