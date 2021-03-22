@@ -60,6 +60,13 @@ namespace GMCS_RestAPI
             services.AddScoped<IAuthorsService, AuthorsService>();
             services.AddScoped<IRabbitMessagesProvider, RabbitMessagesProvider>();
 
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetConnectionString("Redis");
+                options.InstanceName = "RedisDemo_";
+
+            });
+
             services.AddSingleton(new MapperConfiguration(mc => mc.AddProfile(new Mapping.MappingProfile())).CreateMapper());
 
             services.AddSwaggerGen(c =>
